@@ -9,8 +9,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger("DatasetLoader")
 
-def loadScenarios(filepath: str = "scenarios_dataset.json") -> list[dict]:
-    #load scene data from scene_dataset.json
+
+# loads all scenarios from the dataset file into a list of dicts
+def loadScenarios(filepath: str = "scene_dataset.json") -> list[dict]:
+    # load scene data from scene_dataset.json
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             scenarios = json.load(f)
@@ -23,12 +25,13 @@ def loadScenarios(filepath: str = "scenarios_dataset.json") -> list[dict]:
         logger.error("Failed to parse JSON from '%s'. Error: %s", filepath, e)
         raise
 
+
 # load test
 if __name__ == "__main__":
     try:
         all_scenarios = loadScenarios()
         print(f"Successfully loaded {len(all_scenarios)} scenarios.")
-        
+
         if all_scenarios:
             first_scenario = all_scenarios[0]
             print(f"\n--- First Scenario Summary ---")
@@ -36,6 +39,6 @@ if __name__ == "__main__":
             print(f"Name: {first_scenario.get('name')}")
             print(f"Frames: {len(first_scenario.get('frames', []))}")
             print(f"Ground Truth: {first_scenario.get('ground_truth')}")
-            
+
     except Exception as e:
         print(f"An error occurred: {e}")

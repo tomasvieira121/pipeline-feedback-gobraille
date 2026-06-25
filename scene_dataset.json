@@ -1,8 +1,8 @@
 [
   {
     "scenario_id": "SCN001",
-    "name": "Scenario 1: Fast Approaching Vehicle (Urban Intersection)",
-    "description": "Car approaches with increasing speed. Focus: High Risk, low TTC, urgent warning.",
+    "name": "Scenario 1: Fast Approaching Vehicle (Urban Intersection) [Original]",
+    "description": "Original Scenario 1: A car approaches with increasing speed. Focus: High Risk, low TTC, urgent warning.",
     "ground_truth": {
       "ideal_warning_frame_3": "Stop immediately. A car is approaching fast, directly ahead.",
       "critical_objects": ["car"],
@@ -11,25 +11,25 @@
     "frames": [
       {
         "metadata": {"timestamp": 1700000000},
-        "global_context": {"scene_type": "urban_intersection", "surface": "crosswalk", "main_hazard": "distant_vehicle", "overall_risk_level": 0.45},
-        "detections": [{"track_id": 1, "classification": {"class": "car", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.4, 0.4, 0.5, 0.6], "estimated_distance": 15.0, "azimuth_deg": 5}, "movement": {"movement_state": "approaching", "approach_delta": 1.5}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "road"}}]
+        "global_context": {"scene_type": "urban_intersection", "surface": "crosswalk"},
+        "detections": [{"track_id": 1, "classification": {"class": "car", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 15.0, "azimuth_deg": 5}, "movement": {"approach_delta": 1.5}, "semantic_relations": {"risk_level": "medium"}}]
       },
       {
         "metadata": {"timestamp": 1700000001},
-        "global_context": {"scene_type": "urban_intersection", "surface": "crosswalk", "main_hazard": "approaching_vehicle", "overall_risk_level": 0.75},
-        "detections": [{"track_id": 1, "classification": {"class": "car", "confidence": 0.92, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.35, 0.35, 0.55, 0.65], "estimated_distance": 10.0, "azimuth_deg": 3}, "movement": {"movement_state": "approaching", "approach_delta": 1.8}, "semantic_relations": {"risk_level": "high", "spatial_relation": "ahead", "surface_relation": "on_crosswalk"}}]
+        "global_context": {"scene_type": "urban_intersection", "surface": "crosswalk"},
+        "detections": [{"track_id": 1, "classification": {"class": "car", "confidence": 0.92, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 10.0, "azimuth_deg": 3}, "movement": {"approach_delta": 1.8}, "semantic_relations": {"risk_level": "high"}}]
       },
       {
         "metadata": {"timestamp": 1700000002},
-        "global_context": {"scene_type": "urban_intersection", "surface": "crosswalk", "main_hazard": "critical_approaching_vehicle", "overall_risk_level": 0.95},
-        "detections": [{"track_id": 1, "classification": {"class": "car", "confidence": 0.98, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.2, 0.2, 0.7, 0.8], "estimated_distance": 4.5, "azimuth_deg": 1}, "movement": {"movement_state": "approaching", "approach_delta": 2.2}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "on_crosswalk"}}]
+        "global_context": {"scene_type": "urban_intersection", "surface": "crosswalk"},
+        "detections": [{"track_id": 1, "classification": {"class": "car", "confidence": 0.98, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 4.5, "azimuth_deg": 1}, "movement": {"approach_delta": 2.2}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path"}}]
       }
     ]
   },
   {
     "scenario_id": "SCN002",
-    "name": "Scenario 2: Static Obstacle with Intermittent Noise",
-    "description": "Persistent static pole + single frame noises (false positives). Focus: Temporal and confidence filtering.",
+    "name": "Scenario 2: Static Obstacle with Noise (Sidewalk with Pole) [Original]",
+    "description": "Original Scenario 2: A persistent static pole plus single-frame noise. Focus: Temporal and confidence filtering.",
     "ground_truth": {
       "ideal_warning_frame_3": "Caution, there is a pole blocking your path just ahead.",
       "critical_objects": ["pole"],
@@ -38,545 +38,266 @@
     "frames": [
       {
         "metadata": {"timestamp": 1700000100},
-        "global_context": {"scene_type": "sidewalk", "surface": "tactile_paving", "main_hazard": "static_obstacle", "overall_risk_level": 0.40},
-        "detections": [{"track_id": 10, "classification": {"class": "pole", "confidence": 0.88, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.45, 0.2, 0.55, 0.8], "estimated_distance": 6.0, "azimuth_deg": 2}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "on_sidewalk"}}]
+        "global_context": {"scene_type": "sidewalk", "surface": "tactile_paving"},
+        "detections": [
+          {"track_id": 10, "classification": {"class": "pole", "confidence": 0.88, "category": "static"}, "spatial_metrics": {"estimated_distance": 6.0, "azimuth_deg": 2}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}
+        ]
       },
       {
         "metadata": {"timestamp": 1700000101},
-        "global_context": {"scene_type": "sidewalk", "surface": "tactile_paving", "main_hazard": "static_obstacle", "overall_risk_level": 0.45},
-        "detections": [{"track_id": 10, "classification": {"class": "pole", "confidence": 0.90, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.44, 0.15, 0.56, 0.85], "estimated_distance": 5.0, "azimuth_deg": 1}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "on_sidewalk"}}, {"track_id": 99, "classification": {"class": "dog", "confidence": 0.55, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.1, 0.6, 0.25, 0.8], "estimated_distance": 8.0, "azimuth_deg": -30}, "movement": {"movement_state": "moving_away", "approach_delta": -0.2}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_left", "surface_relation": "road"}}, {"track_id": 88, "classification": {"class": "box", "confidence": 0.75, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.7, 0.5, 0.8, 0.6], "estimated_distance": 4.0, "azimuth_deg": 25}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_right", "surface_relation": "on_sidewalk"}}]
+        "global_context": {"scene_type": "sidewalk", "surface": "tactile_paving"},
+        "detections": [
+          {"track_id": 10, "classification": {"class": "pole", "confidence": 0.90, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.0, "azimuth_deg": 1}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}},
+          {"track_id": null, "classification": {"class": "dog", "confidence": 0.55, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 8.0, "azimuth_deg": -30}, "movement": {"approach_delta": -0.2}, "semantic_relations": {"risk_level": "low"}},
+          {"track_id": 88, "classification": {"class": "box", "confidence": 0.75, "category": "static"}, "spatial_metrics": {"estimated_distance": 4.0, "azimuth_deg": 25}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}
+        ]
       },
       {
         "metadata": {"timestamp": 1700000102},
-        "global_context": {"scene_type": "sidewalk", "surface": "tactile_paving", "main_hazard": "close_static_obstacle", "overall_risk_level": 0.60},
-        "detections": [{"track_id": 10, "classification": {"class": "pole", "confidence": 0.92, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.42, 0.1, 0.58, 0.9], "estimated_distance": 3.8, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "on_sidewalk"}}, {"track_id": 101, "classification": {"class": "bicycle", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.1, 0.5, 0.3, 0.7], "estimated_distance": 12.0, "azimuth_deg": -25}, "movement": {"movement_state": "moving_away", "approach_delta": -0.5}, "semantic_relations": {"risk_level": "low", "spatial_relation": "far_left", "surface_relation": "road"}}]
+        "global_context": {"scene_type": "sidewalk", "surface": "tactile_paving"},
+        "detections": [
+          {"track_id": 10, "classification": {"class": "pole", "confidence": 0.92, "category": "static"}, "spatial_metrics": {"estimated_distance": 3.8, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path"}}
+        ]
       }
     ]
   },
   {
     "scenario_id": "SCN003",
-    "name": "Scenario 3: Cyclist Cutting Across Path (Bike Lane Crossing)",
-    "description": "A cyclist emerges from a bike lane and cuts perpendicularly across the pedestrian path. Focus: Lateral approach detection and collision course warning.",
+    "name": "Scenario 3: Low Risk Objects Moving Away [Original]",
+    "description": "Original Scenario 3: Multiple objects moving away from the user. Focus: Low priority due to negative approach delta.",
     "ground_truth": {
-      "ideal_warning_frame_3": "Warning! A cyclist is crossing your path from the left. Stop now.",
-      "critical_objects": ["bicycle"],
-      "expected_dominant_risk_frame_3": "high"
+      "ideal_warning_frame_3": "A person is on your left, but moving away.",
+      "critical_objects": [],
+      "expected_dominant_risk_frame_3": "low"
     },
     "frames": [
       {
         "metadata": {"timestamp": 1700000200},
-        "global_context": {"scene_type": "shared_path", "surface": "pavement", "main_hazard": "distant_cyclist", "overall_risk_level": 0.30},
-        "detections": [{"track_id": 20, "classification": {"class": "bicycle", "confidence": 0.80, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.05, 0.4, 0.2, 0.75], "estimated_distance": 12.0, "azimuth_deg": -45}, "movement": {"movement_state": "crossing", "approach_delta": 0.8}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_left", "surface_relation": "bike_lane"}}]
+        "global_context": {"scene_type": "park_path", "surface": "gravel"},
+        "detections": [
+          {"track_id": 20, "classification": {"class": "person", "confidence": 0.90, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 8.0, "azimuth_deg": -15}, "movement": {"approach_delta": -0.5}, "semantic_relations": {"risk_level": "low"}},
+          {"track_id": 21, "classification": {"class": "person", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 9.0, "azimuth_deg": 10}, "movement": {"approach_delta": -0.4}, "semantic_relations": {"risk_level": "low"}}
+        ]
       },
       {
         "metadata": {"timestamp": 1700000201},
-        "global_context": {"scene_type": "shared_path", "surface": "pavement", "main_hazard": "crossing_cyclist", "overall_risk_level": 0.65},
-        "detections": [{"track_id": 20, "classification": {"class": "bicycle", "confidence": 0.89, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.2, 0.35, 0.4, 0.80], "estimated_distance": 7.0, "azimuth_deg": -20}, "movement": {"movement_state": "crossing", "approach_delta": 1.5}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "left_diagonal", "surface_relation": "on_path"}}]
+        "global_context": {"scene_type": "park_path", "surface": "gravel"},
+        "detections": [
+          {"track_id": 20, "classification": {"class": "person", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 9.0, "azimuth_deg": -18}, "movement": {"approach_delta": -0.6}, "semantic_relations": {"risk_level": "low"}},
+          {"track_id": 21, "classification": {"class": "person", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 10.5, "azimuth_deg": 12}, "movement": {"approach_delta": -0.5}, "semantic_relations": {"risk_level": "low"}},
+          {"track_id": 22, "classification": {"class": "bicycle", "confidence": 0.75, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 15.0, "azimuth_deg": 25}, "movement": {"approach_delta": -0.8}, "semantic_relations": {"risk_level": "low"}}
+        ]
       },
       {
         "metadata": {"timestamp": 1700000202},
-        "global_context": {"scene_type": "shared_path", "surface": "pavement", "main_hazard": "imminent_crossing_cyclist", "overall_risk_level": 0.92},
-        "detections": [{"track_id": 20, "classification": {"class": "bicycle", "confidence": 0.95, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.35, 0.25, 0.65, 0.9], "estimated_distance": 3.2, "azimuth_deg": -5}, "movement": {"movement_state": "crossing", "approach_delta": 2.1}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "on_path"}}]
+        "global_context": {"scene_type": "park_path", "surface": "gravel"},
+        "detections": [
+          {"track_id": 20, "classification": {"class": "person", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 10.2, "azimuth_deg": -20}, "movement": {"approach_delta": -0.7}, "semantic_relations": {"risk_level": "low"}}
+        ]
       }
     ]
   },
   {
     "scenario_id": "SCN004",
-    "name": "Scenario 4: Open Manhole / Ground-Level Hazard",
-    "description": "User approaches an uncovered manhole on the sidewalk. Object is static and low-confidence at first. Focus: Ground hazard detection at close range.",
+    "name": "Scenario 4: Dynamic Risk Transition (Bicycle Diverting) [Original]",
+    "description": "Original Scenario 4: A bicycle approaches fast (high risk) but then diverts (low risk). Focus: Dynamic risk transition.",
     "ground_truth": {
-      "ideal_warning_frame_3": "Danger! There is an open hole in the ground directly ahead. Stop walking.",
-      "critical_objects": ["manhole"],
-      "expected_dominant_risk_frame_3": "high"
+      "ideal_warning_frame_3": "A bicycle is nearby to your left.",
+      "critical_objects": ["bicycle"],
+      "expected_dominant_risk_frame_3": "low"
     },
     "frames": [
       {
         "metadata": {"timestamp": 1700000300},
-        "global_context": {"scene_type": "sidewalk", "surface": "concrete", "main_hazard": "ground_hazard", "overall_risk_level": 0.35},
-        "detections": [{"track_id": 30, "classification": {"class": "manhole", "confidence": 0.65, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.42, 0.55, 0.58, 0.70], "estimated_distance": 5.5, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "on_sidewalk"}}]
+        "global_context": {"scene_type": "shared_path", "surface": "pavement"},
+        "detections": [{"track_id": 30, "classification": {"class": "bicycle", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 12.0, "azimuth_deg": -10}, "movement": {"approach_delta": 2.0}, "semantic_relations": {"risk_level": "medium"}}]
       },
       {
         "metadata": {"timestamp": 1700000301},
-        "global_context": {"scene_type": "sidewalk", "surface": "concrete", "main_hazard": "ground_hazard", "overall_risk_level": 0.60},
-        "detections": [{"track_id": 30, "classification": {"class": "manhole", "confidence": 0.78, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.40, 0.60, 0.60, 0.78], "estimated_distance": 3.5, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "ahead", "surface_relation": "on_sidewalk"}}]
+        "global_context": {"scene_type": "shared_path", "surface": "pavement"},
+        "detections": [{"track_id": 30, "classification": {"class": "bicycle", "confidence": 0.94, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 7.0, "azimuth_deg": -5}, "movement": {"approach_delta": 2.5}, "semantic_relations": {"risk_level": "high"}}]
       },
       {
         "metadata": {"timestamp": 1700000302},
-        "global_context": {"scene_type": "sidewalk", "surface": "concrete", "main_hazard": "critical_ground_hazard", "overall_risk_level": 0.95},
-        "detections": [{"track_id": 30, "classification": {"class": "manhole", "confidence": 0.91, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.38, 0.62, 0.62, 0.90], "estimated_distance": 1.5, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "on_sidewalk"}}]
+        "global_context": {"scene_type": "shared_path", "surface": "pavement"},
+        "detections": [{"track_id": 30, "classification": {"class": "bicycle", "confidence": 0.91, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 6.5, "azimuth_deg": -35}, "movement": {"approach_delta": -0.5}, "semantic_relations": {"risk_level": "low"}}]
       }
     ]
   },
   {
     "scenario_id": "SCN005",
-    "name": "Scenario 5: Multi-Object Scene – Busy Market Area",
-    "description": "Crowded scene with multiple pedestrians, a dog, and a stall blocking the path. Focus: Priority ranking among many simultaneous detections.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Caution, the path ahead is blocked by a market stall. Multiple people and a dog are also nearby.",
-      "critical_objects": ["stall", "person"],
-      "expected_dominant_risk_frame_3": "medium"
-    },
+    "name": "Scenario 5: Reversing Vehicle in Parking Lot",
+    "description": "Variant of SCN001. A car reverses slowly from a parking spot. Focus: Slow-speed reversing hazard detection.",
+    "ground_truth": {"ideal_warning_frame_3": "Warning! A car is reversing towards you from ahead. Stop and wait.", "critical_objects": ["car"], "expected_dominant_risk_frame_3": "high"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700000400},
-        "global_context": {"scene_type": "outdoor_market", "surface": "cobblestone", "main_hazard": "crowded_path", "overall_risk_level": 0.50},
-        "detections": [
-          {"track_id": 40, "classification": {"class": "person", "confidence": 0.91, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.2, 0.3, 0.4, 0.8], "estimated_distance": 4.0, "azimuth_deg": -10}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead_left", "surface_relation": "on_path"}},
-          {"track_id": 41, "classification": {"class": "person", "confidence": 0.87, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.6, 0.3, 0.75, 0.8], "estimated_distance": 4.5, "azimuth_deg": 15}, "movement": {"movement_state": "moving_away", "approach_delta": -0.1}, "semantic_relations": {"risk_level": "low", "spatial_relation": "ahead_right", "surface_relation": "on_path"}},
-          {"track_id": 42, "classification": {"class": "stall", "confidence": 0.82, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.3, 0.2, 0.7, 0.7], "estimated_distance": 6.0, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "on_path"}},
-          {"track_id": 43, "classification": {"class": "dog", "confidence": 0.70, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.05, 0.6, 0.2, 0.85], "estimated_distance": 3.0, "azimuth_deg": -35}, "movement": {"movement_state": "moving_away", "approach_delta": -0.3}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_left", "surface_relation": "on_path"}}
-        ]
-      },
-      {
-        "metadata": {"timestamp": 1700000401},
-        "global_context": {"scene_type": "outdoor_market", "surface": "cobblestone", "main_hazard": "crowded_path", "overall_risk_level": 0.58},
-        "detections": [
-          {"track_id": 40, "classification": {"class": "person", "confidence": 0.93, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.25, 0.3, 0.45, 0.85], "estimated_distance": 3.5, "azimuth_deg": -8}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead_left", "surface_relation": "on_path"}},
-          {"track_id": 42, "classification": {"class": "stall", "confidence": 0.85, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.28, 0.18, 0.72, 0.72], "estimated_distance": 5.5, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "on_path"}},
-          {"track_id": 44, "classification": {"class": "person", "confidence": 0.75, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.75, 0.4, 0.9, 0.9], "estimated_distance": 5.0, "azimuth_deg": 28}, "movement": {"movement_state": "approaching", "approach_delta": 0.4}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_right", "surface_relation": "on_path"}}
-        ]
-      },
-      {
-        "metadata": {"timestamp": 1700000402},
-        "global_context": {"scene_type": "outdoor_market", "surface": "cobblestone", "main_hazard": "blocked_path", "overall_risk_level": 0.68},
-        "detections": [
-          {"track_id": 42, "classification": {"class": "stall", "confidence": 0.88, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.25, 0.15, 0.75, 0.75], "estimated_distance": 4.0, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "on_path"}},
-          {"track_id": 40, "classification": {"class": "person", "confidence": 0.90, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.1, 0.35, 0.3, 0.85], "estimated_distance": 2.8, "azimuth_deg": -20}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "on_left", "surface_relation": "on_path"}},
-          {"track_id": 45, "classification": {"class": "person", "confidence": 0.84, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.7, 0.35, 0.88, 0.85], "estimated_distance": 3.0, "azimuth_deg": 22}, "movement": {"movement_state": "approaching", "approach_delta": 0.5}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "on_right", "surface_relation": "on_path"}}
-        ]
-      }
+      {"metadata": {"timestamp": 1700000500}, "global_context": {"scene_type": "parking_lot"}, "detections": [{"track_id": 50, "classification": {"class": "car", "confidence": 0.84, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 9.0, "azimuth_deg": 2}, "movement": {"approach_delta": 0.6}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700000501}, "global_context": {"scene_type": "parking_lot"}, "detections": [{"track_id": 50, "classification": {"class": "car", "confidence": 0.90, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 6.0, "azimuth_deg": 1}, "movement": {"approach_delta": 1.0}, "semantic_relations": {"risk_level": "high"}}]},
+      {"metadata": {"timestamp": 1700000502}, "global_context": {"scene_type": "parking_lot"}, "detections": [{"track_id": 50, "classification": {"class": "car", "confidence": 0.97, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 3.0, "azimuth_deg": 0}, "movement": {"approach_delta": 1.4}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path"}}]}
     ]
   },
   {
     "scenario_id": "SCN006",
-    "name": "Scenario 6: Reversing Vehicle in Parking Lot",
-    "description": "A car reverses slowly from a parking spot directly toward the user. Focus: Slow-speed reversing hazard detection.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Warning! A car is reversing towards you. Move aside immediately.",
-      "critical_objects": ["car"],
-      "expected_dominant_risk_frame_3": "high"
-    },
+    "name": "Scenario 6: Motorcycle Approaching at Night",
+    "description": "Variant of SCN001. A motorcycle approaches fast in low visibility, leading to lower confidence scores.",
+    "ground_truth": {"ideal_warning_frame_3": "Danger! A motorcycle is approaching very fast. Move aside now.", "critical_objects": ["motorcycle"], "expected_dominant_risk_frame_3": "high"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700000500},
-        "global_context": {"scene_type": "parking_lot", "surface": "asphalt", "main_hazard": "reversing_vehicle", "overall_risk_level": 0.40},
-        "detections": [{"track_id": 50, "classification": {"class": "car", "confidence": 0.84, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.3, 0.25, 0.7, 0.55], "estimated_distance": 9.0, "azimuth_deg": 2}, "movement": {"movement_state": "approaching", "approach_delta": 0.6}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "road"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700000501},
-        "global_context": {"scene_type": "parking_lot", "surface": "asphalt", "main_hazard": "reversing_vehicle", "overall_risk_level": 0.70},
-        "detections": [{"track_id": 50, "classification": {"class": "car", "confidence": 0.90, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.25, 0.2, 0.75, 0.65], "estimated_distance": 6.0, "azimuth_deg": 1}, "movement": {"movement_state": "approaching", "approach_delta": 1.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "ahead", "surface_relation": "road"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700000502},
-        "global_context": {"scene_type": "parking_lot", "surface": "asphalt", "main_hazard": "critical_reversing_vehicle", "overall_risk_level": 0.93},
-        "detections": [{"track_id": 50, "classification": {"class": "car", "confidence": 0.97, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.18, 0.15, 0.82, 0.80], "estimated_distance": 3.0, "azimuth_deg": 0}, "movement": {"movement_state": "approaching", "approach_delta": 1.4}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "road"}}]
-      }
+      {"metadata": {"timestamp": 1700000600}, "global_context": {"scene_type": "road_night"}, "detections": [{"track_id": 60, "classification": {"class": "motorcycle", "confidence": 0.65, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 20.0, "azimuth_deg": 2}, "movement": {"approach_delta": 3.0}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700000601}, "global_context": {"scene_type": "road_night"}, "detections": [{"track_id": 60, "classification": {"class": "motorcycle", "confidence": 0.75, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 12.0, "azimuth_deg": 1}, "movement": {"approach_delta": 3.5}, "semantic_relations": {"risk_level": "high"}}]},
+      {"metadata": {"timestamp": 1700000602}, "global_context": {"scene_type": "road_night"}, "detections": [{"track_id": 60, "classification": {"class": "motorcycle", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 5.0, "azimuth_deg": 0}, "movement": {"approach_delta": 4.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path"}}]}
     ]
   },
   {
     "scenario_id": "SCN007",
-    "name": "Scenario 7: Low-Speed E-Scooter Approach from Behind",
-    "description": "An e-scooter silently approaches from behind-right. Focus: Rear/lateral silent micro-mobility hazard.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Caution! An e-scooter is coming from behind on your right. Step aside.",
-      "critical_objects": ["scooter"],
-      "expected_dominant_risk_frame_3": "medium"
-    },
+    "name": "Scenario 7: Bus Pulling Out from Stop",
+    "description": "Variant of SCN001. A large bus, initially stationary, pulls out into the user's path.",
+    "ground_truth": {"ideal_warning_frame_3": "Stop! A bus is pulling out into your path from the left.", "critical_objects": ["bus"], "expected_dominant_risk_frame_3": "high"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700000600},
-        "global_context": {"scene_type": "sidewalk", "surface": "pavement", "main_hazard": "rear_approach", "overall_risk_level": 0.25},
-        "detections": [{"track_id": 60, "classification": {"class": "scooter", "confidence": 0.72, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.75, 0.3, 0.95, 0.75], "estimated_distance": 10.0, "azimuth_deg": 70}, "movement": {"movement_state": "approaching", "approach_delta": 1.2}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_right", "surface_relation": "on_sidewalk"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700000601},
-        "global_context": {"scene_type": "sidewalk", "surface": "pavement", "main_hazard": "rear_lateral_approach", "overall_risk_level": 0.50},
-        "detections": [{"track_id": 60, "classification": {"class": "scooter", "confidence": 0.83, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.65, 0.25, 0.9, 0.80], "estimated_distance": 6.5, "azimuth_deg": 45}, "movement": {"movement_state": "approaching", "approach_delta": 1.5}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "right_diagonal", "surface_relation": "on_sidewalk"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700000602},
-        "global_context": {"scene_type": "sidewalk", "surface": "pavement", "main_hazard": "close_lateral_approach", "overall_risk_level": 0.72},
-        "detections": [{"track_id": 60, "classification": {"class": "scooter", "confidence": 0.91, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.55, 0.2, 0.85, 0.85], "estimated_distance": 3.5, "azimuth_deg": 22}, "movement": {"movement_state": "approaching", "approach_delta": 1.8}, "semantic_relations": {"risk_level": "high", "spatial_relation": "ahead_right", "surface_relation": "on_sidewalk"}}]
-      }
+      {"metadata": {"timestamp": 1700000700}, "global_context": {"scene_type": "bus_stop"}, "detections": [{"track_id": 70, "classification": {"class": "bus", "confidence": 0.91, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 10.0, "azimuth_deg": -20}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700000701}, "global_context": {"scene_type": "bus_stop"}, "detections": [{"track_id": 70, "classification": {"class": "bus", "confidence": 0.94, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 7.5, "azimuth_deg": -8}, "movement": {"approach_delta": 1.2}, "semantic_relations": {"risk_level": "high"}}]},
+      {"metadata": {"timestamp": 1700000702}, "global_context": {"scene_type": "bus_stop"}, "detections": [{"track_id": 70, "classification": {"class": "bus", "confidence": 0.97, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 4.0, "azimuth_deg": 0}, "movement": {"approach_delta": 1.8}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path"}}]}
     ]
   },
-  {
+    {
     "scenario_id": "SCN008",
-    "name": "Scenario 8: Wet Floor Sign / Temporary Indoor Obstacle",
-    "description": "User walks through a shopping mall. A wet-floor sign appears mid-aisle with low initial confidence. Focus: Low-confidence static hazard escalation.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Caution! There is a wet floor sign ahead. Watch your step.",
-      "critical_objects": ["sign"],
-      "expected_dominant_risk_frame_3": "medium"
-    },
+    "name": "Scenario 8: Cyclist Cutting Across Path",
+    "description": "Variant of SCN001. A cyclist emerges from a bike lane and cuts perpendicularly across the path.",
+    "ground_truth": {"ideal_warning_frame_3": "Warning! A cyclist is crossing your path from the left. Stop now.", "critical_objects": ["bicycle"], "expected_dominant_risk_frame_3": "high"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700000700},
-        "global_context": {"scene_type": "indoor_corridor", "surface": "tile", "main_hazard": "low_confidence_obstacle", "overall_risk_level": 0.20},
-        "detections": [{"track_id": 70, "classification": {"class": "sign", "confidence": 0.58, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.43, 0.40, 0.57, 0.70], "estimated_distance": 7.0, "azimuth_deg": 1}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "low", "spatial_relation": "ahead", "surface_relation": "on_floor"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700000701},
-        "global_context": {"scene_type": "indoor_corridor", "surface": "tile", "main_hazard": "static_obstacle", "overall_risk_level": 0.42},
-        "detections": [{"track_id": 70, "classification": {"class": "sign", "confidence": 0.74, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.42, 0.42, 0.58, 0.75], "estimated_distance": 4.5, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "on_floor"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700000702},
-        "global_context": {"scene_type": "indoor_corridor", "surface": "tile", "main_hazard": "close_static_obstacle", "overall_risk_level": 0.62},
-        "detections": [{"track_id": 70, "classification": {"class": "sign", "confidence": 0.88, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.40, 0.45, 0.60, 0.85], "estimated_distance": 2.2, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "on_floor"}}]
-      }
+      {"metadata": {"timestamp": 1700000800}, "global_context": {"scene_type": "shared_path"}, "detections": [{"track_id": 80, "classification": {"class": "bicycle", "confidence": 0.80, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 12.0, "azimuth_deg": -45}, "movement": {"approach_delta": 0.8}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700000801}, "global_context": {"scene_type": "shared_path"}, "detections": [{"track_id": 80, "classification": {"class": "bicycle", "confidence": 0.89, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 7.0, "azimuth_deg": -20}, "movement": {"approach_delta": 1.5}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700000802}, "global_context": {"scene_type": "shared_path"}, "detections": [{"track_id": 80, "classification": {"class": "bicycle", "confidence": 0.95, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 3.2, "azimuth_deg": -5}, "movement": {"approach_delta": 2.1}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path"}}]}
     ]
   },
   {
     "scenario_id": "SCN009",
-    "name": "Scenario 9: Clear Path – No Hazard (True Negative)",
-    "description": "Open sidewalk with no obstacles detected across all frames. Focus: False-positive suppression and no unnecessary warnings.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "",
-      "critical_objects": [],
-      "expected_dominant_risk_frame_3": "none"
-    },
+    "name": "Scenario 9: Open Manhole with Low Initial Confidence",
+    "description": "Variant of SCN002. User approaches an uncovered manhole. Focus: Ground hazard detection.",
+    "ground_truth": {"ideal_warning_frame_3": "Danger! There is an open hole on the ground directly ahead. Stop walking.", "critical_objects": ["manhole"], "expected_dominant_risk_frame_3": "high"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700000800},
-        "global_context": {"scene_type": "sidewalk", "surface": "pavement", "main_hazard": "none", "overall_risk_level": 0.05},
-        "detections": []
-      },
-      {
-        "metadata": {"timestamp": 1700000801},
-        "global_context": {"scene_type": "sidewalk", "surface": "pavement", "main_hazard": "none", "overall_risk_level": 0.05},
-        "detections": []
-      },
-      {
-        "metadata": {"timestamp": 1700000802},
-        "global_context": {"scene_type": "sidewalk", "surface": "pavement", "main_hazard": "none", "overall_risk_level": 0.05},
-        "detections": []
-      }
+      {"metadata": {"timestamp": 1700000900}, "global_context": {"scene_type": "sidewalk"}, "detections": [{"track_id": 90, "classification": {"class": "manhole", "confidence": 0.65, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.5, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700000901}, "global_context": {"scene_type": "sidewalk"}, "detections": [{"track_id": 90, "classification": {"class": "manhole", "confidence": 0.78, "category": "static"}, "spatial_metrics": {"estimated_distance": 3.5, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high"}}]},
+      {"metadata": {"timestamp": 1700000902}, "global_context": {"scene_type": "sidewalk"}, "detections": [{"track_id": 90, "classification": {"class": "manhole", "confidence": 0.91, "category": "static"}, "spatial_metrics": {"estimated_distance": 1.5, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path"}}]}
     ]
   },
   {
     "scenario_id": "SCN010",
-    "name": "Scenario 10: Dog On Leash – Low Risk Passthrough",
-    "description": "A dog on a leash is to the user's right, moving away. Owner is visible. Focus: Low-risk classification and avoidance of unnecessary warning.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "A dog is nearby on your right, but moving away.",
-      "critical_objects": ["dog"],
-      "expected_dominant_risk_frame_3": "low"
-    },
+    "name": "Scenario 10: Construction Zone with Multiple Obstacles",
+    "description": "Variant of SCN002. User approaches a construction zone with fencing and cones.",
+    "ground_truth": {"ideal_warning_frame_3": "Caution! Construction zone ahead. The path is blocked by a fence and a cone.", "critical_objects": ["fence", "cone"], "expected_dominant_risk_frame_3": "high"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700000900},
-        "global_context": {"scene_type": "park_path", "surface": "gravel", "main_hazard": "animal_nearby", "overall_risk_level": 0.15},
-        "detections": [
-          {"track_id": 80, "classification": {"class": "dog", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.65, 0.5, 0.82, 0.85], "estimated_distance": 3.5, "azimuth_deg": 25}, "movement": {"movement_state": "moving_away", "approach_delta": -0.5}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_right", "surface_relation": "on_path"}},
-          {"track_id": 81, "classification": {"class": "person", "confidence": 0.90, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.70, 0.2, 0.88, 0.75], "estimated_distance": 4.0, "azimuth_deg": 28}, "movement": {"movement_state": "moving_away", "approach_delta": -0.6}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_right", "surface_relation": "on_path"}}
-        ]
-      },
-      {
-        "metadata": {"timestamp": 1700000901},
-        "global_context": {"scene_type": "park_path", "surface": "gravel", "main_hazard": "animal_nearby", "overall_risk_level": 0.12},
-        "detections": [
-          {"track_id": 80, "classification": {"class": "dog", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.72, 0.55, 0.88, 0.88], "estimated_distance": 4.5, "azimuth_deg": 30}, "movement": {"movement_state": "moving_away", "approach_delta": -0.7}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_right", "surface_relation": "on_path"}},
-          {"track_id": 81, "classification": {"class": "person", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.75, 0.2, 0.92, 0.78], "estimated_distance": 5.2, "azimuth_deg": 32}, "movement": {"movement_state": "moving_away", "approach_delta": -0.8}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_right", "surface_relation": "on_path"}}
-        ]
-      },
-      {
-        "metadata": {"timestamp": 1700000902},
-        "global_context": {"scene_type": "park_path", "surface": "gravel", "main_hazard": "none", "overall_risk_level": 0.08},
-        "detections": [
-          {"track_id": 81, "classification": {"class": "person", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.80, 0.25, 0.96, 0.80], "estimated_distance": 6.5, "azimuth_deg": 35}, "movement": {"movement_state": "moving_away", "approach_delta": -1.0}, "semantic_relations": {"risk_level": "low", "spatial_relation": "far_right", "surface_relation": "on_path"}}
-        ]
-      }
+      {"metadata": {"timestamp": 1700001000}, "global_context": {"scene_type": "construction_zone"}, "detections": [{"track_id": 100, "classification": {"class": "fence", "confidence": 0.86, "category": "static"}, "spatial_metrics": {"estimated_distance": 8.0, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700001001}, "global_context": {"scene_type": "construction_zone"}, "detections": [{"track_id": 100, "classification": {"class": "fence", "confidence": 0.90, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.5, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high"}}, {"track_id": 101, "classification": {"class": "cone", "confidence": 0.82, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.0, "azimuth_deg": -18}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700001002}, "global_context": {"scene_type": "construction_zone"}, "detections": [{"track_id": 100, "classification": {"class": "fence", "confidence": 0.93, "category": "static"}, "spatial_metrics": {"estimated_distance": 3.2, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path"}}, {"track_id": 101, "classification": {"class": "cone", "confidence": 0.85, "category": "static"}, "spatial_metrics": {"estimated_distance": 2.8, "azimuth_deg": -15}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high"}}]}
     ]
   },
   {
     "scenario_id": "SCN011",
-    "name": "Scenario 11: Road Crossing – Traffic Light Scenario",
-    "description": "User is at a pedestrian crossing. A vehicle is stationary at red, then starts moving as light changes. Focus: Transitional risk from stationary to dynamic.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Warning! A car ahead is starting to move. Wait before crossing.",
-      "critical_objects": ["car"],
-      "expected_dominant_risk_frame_3": "high"
-    },
+    "name": "Scenario 11: Transient Ghost Detection (Pure Noise)",
+    "description": "Variant of SCN002. A high-confidence detection appears for one frame only and should be filtered.",
+    "ground_truth": {"ideal_warning_frame_3": "Path appears clear. Proceed with caution.", "critical_objects": [], "expected_dominant_risk_frame_3": "default"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700001000},
-        "global_context": {"scene_type": "pedestrian_crossing", "surface": "crosswalk", "main_hazard": "stopped_vehicle", "overall_risk_level": 0.20},
-        "detections": [{"track_id": 90, "classification": {"class": "car", "confidence": 0.90, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.3, 0.3, 0.7, 0.6], "estimated_distance": 8.0, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "low", "spatial_relation": "ahead", "surface_relation": "road"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001001},
-        "global_context": {"scene_type": "pedestrian_crossing", "surface": "crosswalk", "main_hazard": "accelerating_vehicle", "overall_risk_level": 0.60},
-        "detections": [{"track_id": 90, "classification": {"class": "car", "confidence": 0.93, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.28, 0.28, 0.72, 0.65], "estimated_distance": 6.5, "azimuth_deg": 0}, "movement": {"movement_state": "approaching", "approach_delta": 1.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "ahead", "surface_relation": "road"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001002},
-        "global_context": {"scene_type": "pedestrian_crossing", "surface": "crosswalk", "main_hazard": "approaching_vehicle_on_crosswalk", "overall_risk_level": 0.90},
-        "detections": [{"track_id": 90, "classification": {"class": "car", "confidence": 0.97, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.2, 0.2, 0.8, 0.75], "estimated_distance": 4.0, "azimuth_deg": 0}, "movement": {"movement_state": "approaching", "approach_delta": 1.8}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "on_crosswalk"}}]
-      }
+      {"metadata": {"timestamp": 1700001100}, "global_context": {"scene_type": "sidewalk"}, "detections": []},
+      {"metadata": {"timestamp": 1700001101}, "global_context": {"scene_type": "sidewalk"}, "detections": [{"track_id": 999, "classification": {"class": "car", "confidence": 0.78, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 5.0, "azimuth_deg": 0}, "movement": {"approach_delta": 2.0}, "semantic_relations": {"risk_level": "high"}}]},
+      {"metadata": {"timestamp": 1700001102}, "global_context": {"scene_type": "sidewalk"}, "detections": []}
     ]
   },
   {
     "scenario_id": "SCN012",
-    "name": "Scenario 12: Construction Zone – Multiple Barriers",
-    "description": "User approaches a construction zone with temporary fencing, a traffic cone, and a construction worker. Focus: Multi-static obstacle scene with person.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Caution! Construction zone ahead. There is fencing blocking the path and a worker nearby. Take an alternate route.",
-      "critical_objects": ["fence", "cone"],
-      "expected_dominant_risk_frame_3": "high"
-    },
+    "name": "Scenario 12: Overhanging Branch Hazard",
+    "description": "Variant of SCN002. A low-hanging tree branch at head level. Focus: Above-waist static obstacle warning.",
+    "ground_truth": {"ideal_warning_frame_3": "Caution! Low branch ahead at head level. Duck or step aside.", "critical_objects": ["branch"], "expected_dominant_risk_frame_3": "high"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700001100},
-        "global_context": {"scene_type": "construction_zone", "surface": "mixed", "main_hazard": "construction_barrier", "overall_risk_level": 0.45},
-        "detections": [
-          {"track_id": 100, "classification": {"class": "fence", "confidence": 0.86, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.1, 0.2, 0.9, 0.65], "estimated_distance": 8.0, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "road"}},
-          {"track_id": 101, "classification": {"class": "cone", "confidence": 0.78, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.15, 0.6, 0.25, 0.85], "estimated_distance": 7.5, "azimuth_deg": -20}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "low", "spatial_relation": "ahead_left", "surface_relation": "road"}}
-        ]
-      },
-      {
-        "metadata": {"timestamp": 1700001101},
-        "global_context": {"scene_type": "construction_zone", "surface": "mixed", "main_hazard": "construction_barrier", "overall_risk_level": 0.62},
-        "detections": [
-          {"track_id": 100, "classification": {"class": "fence", "confidence": 0.90, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.08, 0.18, 0.92, 0.70], "estimated_distance": 5.5, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "ahead", "surface_relation": "road"}},
-          {"track_id": 101, "classification": {"class": "cone", "confidence": 0.82, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.12, 0.58, 0.22, 0.88], "estimated_distance": 5.0, "azimuth_deg": -18}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead_left", "surface_relation": "road"}},
-          {"track_id": 102, "classification": {"class": "person", "confidence": 0.84, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.6, 0.25, 0.78, 0.75], "estimated_distance": 6.0, "azimuth_deg": 20}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "low", "spatial_relation": "ahead_right", "surface_relation": "road"}}
-        ]
-      },
-      {
-        "metadata": {"timestamp": 1700001102},
-        "global_context": {"scene_type": "construction_zone", "surface": "mixed", "main_hazard": "blocked_path", "overall_risk_level": 0.85},
-        "detections": [
-          {"track_id": 100, "classification": {"class": "fence", "confidence": 0.93, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.05, 0.15, 0.95, 0.75], "estimated_distance": 3.2, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "road"}},
-          {"track_id": 101, "classification": {"class": "cone", "confidence": 0.85, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.08, 0.55, 0.20, 0.90], "estimated_distance": 2.8, "azimuth_deg": -15}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "ahead_left", "surface_relation": "road"}},
-          {"track_id": 102, "classification": {"class": "person", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.65, 0.22, 0.82, 0.78], "estimated_distance": 4.5, "azimuth_deg": 18}, "movement": {"movement_state": "approaching", "approach_delta": 0.3}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead_right", "surface_relation": "road"}}
-        ]
-      }
+      {"metadata": {"timestamp": 1700001200}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 120, "classification": {"class": "branch", "confidence": 0.68, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.5, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700001201}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 120, "classification": {"class": "branch", "confidence": 0.80, "category": "static"}, "spatial_metrics": {"estimated_distance": 3.2, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700001202}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 120, "classification": {"class": "branch", "confidence": 0.89, "category": "static"}, "spatial_metrics": {"estimated_distance": 1.5, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "overhead"}}]}
     ]
   },
   {
     "scenario_id": "SCN013",
-    "name": "Scenario 13: Transient Ghost Detection (Pure Noise)",
-    "description": "High-confidence detection appears in only one frame with no continuation. Focus: Single-frame artifact/ghost detection suppression.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "",
-      "critical_objects": [],
-      "expected_dominant_risk_frame_3": "none"
-    },
+    "name": "Scenario 13: Dog on Leash Moving Away",
+    "description": "Variant of SCN003. A dog on a leash is moving away with its owner. Focus: Low-risk classification.",
+    "ground_truth": {"ideal_warning_frame_3": "A person and a dog are to your right, but they are moving away.", "critical_objects": [], "expected_dominant_risk_frame_3": "low"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700001200},
-        "global_context": {"scene_type": "sidewalk", "surface": "pavement", "main_hazard": "none", "overall_risk_level": 0.05},
-        "detections": []
-      },
-      {
-        "metadata": {"timestamp": 1700001201},
-        "global_context": {"scene_type": "sidewalk", "surface": "pavement", "main_hazard": "noise", "overall_risk_level": 0.10},
-        "detections": [{"track_id": 999, "classification": {"class": "car", "confidence": 0.78, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.2, 0.3, 0.5, 0.6], "estimated_distance": 5.0, "azimuth_deg": 0}, "movement": {"movement_state": "approaching", "approach_delta": 2.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "ahead", "surface_relation": "road"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001202},
-        "global_context": {"scene_type": "sidewalk", "surface": "pavement", "main_hazard": "none", "overall_risk_level": 0.05},
-        "detections": []
-      }
+      {"metadata": {"timestamp": 1700001300}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 130, "classification": {"class": "dog", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 3.5, "azimuth_deg": 25}, "movement": {"approach_delta": -0.5}, "semantic_relations": {"risk_level": "low"}}, {"track_id": 131, "classification": {"class": "person", "confidence": 0.90, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 4.0, "azimuth_deg": 28}, "movement": {"approach_delta": -0.6}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700001301}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 130, "classification": {"class": "dog", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 4.5, "azimuth_deg": 30}, "movement": {"approach_delta": -0.7}, "semantic_relations": {"risk_level": "low"}}, {"track_id": 131, "classification": {"class": "person", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 5.2, "azimuth_deg": 32}, "movement": {"approach_delta": -0.8}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700001302}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 131, "classification": {"class": "person", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 6.5, "azimuth_deg": 35}, "movement": {"approach_delta": -1.0}, "semantic_relations": {"risk_level": "low"}}]}
     ]
   },
   {
     "scenario_id": "SCN014",
-    "name": "Scenario 14: Staircase Descent Hazard",
-    "description": "User unknowingly approaches the edge of a descending staircase. Focus: Ground-level drop-off hazard detection.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Warning! Stairs descending ahead. Step carefully.",
-      "critical_objects": ["stairs"],
-      "expected_dominant_risk_frame_3": "high"
-    },
+    "name": "Scenario 14: Clear Path (True Negative)",
+    "description": "Variant of SCN003. An open sidewalk with no obstacles detected. Focus: Suppression of false positives and unnecessary warnings.",
+    "ground_truth": {"ideal_warning_frame_3": "Path appears clear. Proceed with caution.", "critical_objects": [], "expected_dominant_risk_frame_3": "default"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700001300},
-        "global_context": {"scene_type": "indoor_corridor", "surface": "tile", "main_hazard": "elevation_change", "overall_risk_level": 0.30},
-        "detections": [{"track_id": 110, "classification": {"class": "stairs", "confidence": 0.70, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.2, 0.50, 0.8, 0.72], "estimated_distance": 6.0, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "on_floor"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001301},
-        "global_context": {"scene_type": "indoor_corridor", "surface": "tile", "main_hazard": "elevation_change", "overall_risk_level": 0.60},
-        "detections": [{"track_id": 110, "classification": {"class": "stairs", "confidence": 0.83, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.15, 0.52, 0.85, 0.80], "estimated_distance": 3.5, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "ahead", "surface_relation": "on_floor"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001302},
-        "global_context": {"scene_type": "indoor_corridor", "surface": "tile", "main_hazard": "imminent_elevation_change", "overall_risk_level": 0.92},
-        "detections": [{"track_id": 110, "classification": {"class": "stairs", "confidence": 0.93, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.10, 0.55, 0.90, 0.90], "estimated_distance": 1.8, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "on_floor"}}]
-      }
+      {"metadata": {"timestamp": 1700001400}, "global_context": {"scene_type": "sidewalk"}, "detections": []},
+      {"metadata": {"timestamp": 1700001401}, "global_context": {"scene_type": "sidewalk"}, "detections": []},
+      {"metadata": {"timestamp": 1700001402}, "global_context": {"scene_type": "sidewalk"}, "detections": []}
     ]
   },
   {
     "scenario_id": "SCN015",
-    "name": "Scenario 15: Pedestrian Running Into Path",
-    "description": "A pedestrian is jogging on a perpendicular path and is set to cross directly in front of the user. Focus: Fast-moving lateral person detection.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Stop! A person is running across your path from the right.",
-      "critical_objects": ["person"],
-      "expected_dominant_risk_frame_3": "high"
-    },
+    "name": "Scenario 15: Distant Parallel Traffic",
+    "description": "Variant of SCN003. Cars are visible but are far away on a parallel road, posing no immediate threat.",
+    "ground_truth": {"ideal_warning_frame_3": "There is a car far to your left.", "critical_objects": [], "expected_dominant_risk_frame_3": "low"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700001400},
-        "global_context": {"scene_type": "park_path", "surface": "gravel", "main_hazard": "distant_pedestrian", "overall_risk_level": 0.25},
-        "detections": [{"track_id": 120, "classification": {"class": "person", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.75, 0.3, 0.92, 0.85], "estimated_distance": 11.0, "azimuth_deg": 55}, "movement": {"movement_state": "crossing", "approach_delta": 1.2}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_right", "surface_relation": "on_path"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001401},
-        "global_context": {"scene_type": "park_path", "surface": "gravel", "main_hazard": "crossing_pedestrian", "overall_risk_level": 0.65},
-        "detections": [{"track_id": 120, "classification": {"class": "person", "confidence": 0.89, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.55, 0.28, 0.78, 0.88], "estimated_distance": 6.0, "azimuth_deg": 25}, "movement": {"movement_state": "crossing", "approach_delta": 2.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "right_diagonal", "surface_relation": "on_path"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001402},
-        "global_context": {"scene_type": "park_path", "surface": "gravel", "main_hazard": "imminent_crossing_pedestrian", "overall_risk_level": 0.91},
-        "detections": [{"track_id": 120, "classification": {"class": "person", "confidence": 0.95, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.35, 0.22, 0.65, 0.90], "estimated_distance": 2.8, "azimuth_deg": 5}, "movement": {"movement_state": "crossing", "approach_delta": 2.5}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "on_path"}}]
-      }
+      {"metadata": {"timestamp": 1700001500}, "global_context": {"scene_type": "sidewalk_near_road"}, "detections": [{"track_id": 150, "classification": {"class": "car", "confidence": 0.80, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 18.0, "azimuth_deg": -40}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700001501}, "global_context": {"scene_type": "sidewalk_near_road"}, "detections": [{"track_id": 150, "classification": {"class": "car", "confidence": 0.78, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 19.0, "azimuth_deg": -45}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700001502}, "global_context": {"scene_type": "sidewalk_near_road"}, "detections": [{"track_id": 150, "classification": {"class": "car", "confidence": 0.75, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 21.0, "azimuth_deg": -50}, "movement": {"approach_delta": -0.2}, "semantic_relations": {"risk_level": "low"}}]}
     ]
   },
   {
     "scenario_id": "SCN016",
-    "name": "Scenario 16: Night Scene – Low Visibility, Motorcycle Approaching",
-    "description": "Night-time scenario with a motorcycle approaching fast. Detections have lower confidence due to poor lighting. Focus: High-speed night hazard with degraded confidence.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Danger! A motorcycle is approaching fast in low visibility. Get off the road immediately.",
-      "critical_objects": ["motorcycle"],
-      "expected_dominant_risk_frame_3": "high"
-    },
+    "name": "Scenario 16: Skateboarder Moves Away",
+    "description": "Variant of SCN003. A skateboarder is present but is moving away from the user.",
+    "ground_truth": {"ideal_warning_frame_3": "A skateboarder is ahead to the right, moving away.", "critical_objects": [], "expected_dominant_risk_frame_3": "low"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700001500},
-        "global_context": {"scene_type": "road_night", "surface": "asphalt", "main_hazard": "distant_vehicle_low_visibility", "overall_risk_level": 0.50},
-        "detections": [{"track_id": 130, "classification": {"class": "motorcycle", "confidence": 0.65, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.45, 0.45, 0.55, 0.60], "estimated_distance": 20.0, "azimuth_deg": 2}, "movement": {"movement_state": "approaching", "approach_delta": 3.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "road"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001501},
-        "global_context": {"scene_type": "road_night", "surface": "asphalt", "main_hazard": "approaching_vehicle_low_visibility", "overall_risk_level": 0.80},
-        "detections": [{"track_id": 130, "classification": {"class": "motorcycle", "confidence": 0.75, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.38, 0.38, 0.62, 0.68], "estimated_distance": 12.0, "azimuth_deg": 1}, "movement": {"movement_state": "approaching", "approach_delta": 3.5}, "semantic_relations": {"risk_level": "high", "spatial_relation": "ahead", "surface_relation": "road"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001502},
-        "global_context": {"scene_type": "road_night", "surface": "asphalt", "main_hazard": "critical_fast_vehicle", "overall_risk_level": 0.97},
-        "detections": [{"track_id": 130, "classification": {"class": "motorcycle", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.25, 0.25, 0.75, 0.78], "estimated_distance": 5.0, "azimuth_deg": 0}, "movement": {"movement_state": "approaching", "approach_delta": 4.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "road"}}]
-      }
+      {"metadata": {"timestamp": 1700001600}, "global_context": {"scene_type": "plaza"}, "detections": [{"track_id": 160, "classification": {"class": "skateboard", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 7.0, "azimuth_deg": 15}, "movement": {"approach_delta": -1.0}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700001601}, "global_context": {"scene_type": "plaza"}, "detections": [{"track_id": 160, "classification": {"class": "skateboard", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 8.5, "azimuth_deg": 18}, "movement": {"approach_delta": -1.2}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700001602}, "global_context": {"scene_type": "plaza"}, "detections": [{"track_id": 160, "classification": {"class": "skateboard", "confidence": 0.79, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 10.0, "azimuth_deg": 22}, "movement": {"approach_delta": -1.5}, "semantic_relations": {"risk_level": "low"}}]}
     ]
   },
   {
     "scenario_id": "SCN017",
-    "name": "Scenario 17: Overhanging Branch / Head-Level Obstacle",
-    "description": "A low-hanging tree branch is detected at head level as user approaches. Focus: Above-waist static obstacle warning.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Caution! Low branch ahead at head level. Duck or step aside.",
-      "critical_objects": ["branch"],
-      "expected_dominant_risk_frame_3": "medium"
-    },
+    "name": "Scenario 17: Jogger Approaches then Turns Away",
+    "description": "Variant of SCN004. A person jogging appears to be on a collision course but then turns onto a different path.",
+    "ground_truth": {"ideal_warning_frame_3": "A person is jogging to your right.", "critical_objects": ["person"], "expected_dominant_risk_frame_3": "low"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700001600},
-        "global_context": {"scene_type": "park_path", "surface": "gravel", "main_hazard": "overhead_obstacle", "overall_risk_level": 0.25},
-        "detections": [{"track_id": 140, "classification": {"class": "branch", "confidence": 0.68, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.2, 0.05, 0.8, 0.35], "estimated_distance": 5.5, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "low", "spatial_relation": "ahead", "surface_relation": "overhead"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001601},
-        "global_context": {"scene_type": "park_path", "surface": "gravel", "main_hazard": "overhead_obstacle", "overall_risk_level": 0.45},
-        "detections": [{"track_id": 140, "classification": {"class": "branch", "confidence": 0.80, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.15, 0.03, 0.85, 0.38], "estimated_distance": 3.2, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "overhead"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001602},
-        "global_context": {"scene_type": "park_path", "surface": "gravel", "main_hazard": "imminent_overhead_obstacle", "overall_risk_level": 0.68},
-        "detections": [{"track_id": 140, "classification": {"class": "branch", "confidence": 0.89, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.08, 0.0, 0.92, 0.40], "estimated_distance": 1.5, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "overhead"}}]
-      }
+      {"metadata": {"timestamp": 1700001700}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 170, "classification": {"class": "person", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 10.0, "azimuth_deg": 20}, "movement": {"approach_delta": 1.5}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700001701}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 170, "classification": {"class": "person", "confidence": 0.90, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 6.0, "azimuth_deg": 10}, "movement": {"approach_delta": 2.0}, "semantic_relations": {"risk_level": "high"}}]},
+      {"metadata": {"timestamp": 1700001702}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 170, "classification": {"class": "person", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 5.5, "azimuth_deg": 40}, "movement": {"approach_delta": -0.2}, "semantic_relations": {"risk_level": "low"}}]}
     ]
   },
   {
     "scenario_id": "SCN018",
-    "name": "Scenario 18: Bus Pulling Out from Stop",
-    "description": "A large bus pulls out from a bus stop directly into the user's path. Focus: Large vehicle sudden motion from stationary to dynamic.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Stop! A bus is pulling out from the stop into your path.",
-      "critical_objects": ["bus"],
-      "expected_dominant_risk_frame_3": "high"
-    },
+    "name": "Scenario 18: E-Scooter Stops Abruptly",
+    "description": "Variant of SCN004. An e-scooter approaches quickly but then comes to a complete stop before becoming a hazard.",
+    "ground_truth": {"ideal_warning_frame_3": "An e-scooter is stopped ahead of you.", "critical_objects": ["scooter"], "expected_dominant_risk_frame_3": "medium"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700001700},
-        "global_context": {"scene_type": "bus_stop", "surface": "pavement", "main_hazard": "stationary_large_vehicle", "overall_risk_level": 0.25},
-        "detections": [{"track_id": 150, "classification": {"class": "bus", "confidence": 0.91, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.05, 0.1, 0.6, 0.85], "estimated_distance": 10.0, "azimuth_deg": -20}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_left", "surface_relation": "road"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001701},
-        "global_context": {"scene_type": "bus_stop", "surface": "pavement", "main_hazard": "large_vehicle_pulling_out", "overall_risk_level": 0.65},
-        "detections": [{"track_id": 150, "classification": {"class": "bus", "confidence": 0.94, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.1, 0.08, 0.7, 0.88], "estimated_distance": 7.5, "azimuth_deg": -8}, "movement": {"movement_state": "approaching", "approach_delta": 1.2}, "semantic_relations": {"risk_level": "high", "spatial_relation": "ahead_left", "surface_relation": "road"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001702},
-        "global_context": {"scene_type": "bus_stop", "surface": "pavement", "main_hazard": "large_vehicle_blocking_path", "overall_risk_level": 0.95},
-        "detections": [{"track_id": 150, "classification": {"class": "bus", "confidence": 0.97, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.0, 0.05, 0.82, 0.92], "estimated_distance": 4.0, "azimuth_deg": 0}, "movement": {"movement_state": "approaching", "approach_delta": 1.8}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "on_crosswalk"}}]
-      }
+      {"metadata": {"timestamp": 1700001800}, "global_context": {"scene_type": "sidewalk"}, "detections": [{"track_id": 180, "classification": {"class": "scooter", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 8.0, "azimuth_deg": -5}, "movement": {"approach_delta": 1.8}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700001801}, "global_context": {"scene_type": "sidewalk"}, "detections": [{"track_id": 180, "classification": {"class": "scooter", "confidence": 0.89, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 4.0, "azimuth_deg": -2}, "movement": {"approach_delta": 2.2}, "semantic_relations": {"risk_level": "high"}}]},
+      {"metadata": {"timestamp": 1700001802}, "global_context": {"scene_type": "sidewalk"}, "detections": [{"track_id": 180, "classification": {"class": "scooter", "confidence": 0.92, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 3.8, "azimuth_deg": -1}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}]}
     ]
   },
   {
     "scenario_id": "SCN019",
-    "name": "Scenario 19: Rain – Degraded Detection Quality",
-    "description": "Heavy rain causes multiple noisy, low-confidence detections. Only a stationary van is real. Focus: Robust hazard extraction under degraded sensor conditions.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Caution! A van is blocking the pavement ahead.",
-      "critical_objects": ["van"],
-      "expected_dominant_risk_frame_3": "medium"
-    },
+    "name": "Scenario 19: Car at Traffic Light Starts Moving",
+    "description": "Variant of SCN004 (risk transition). A car is stationary, then begins to accelerate towards the user.",
+    "ground_truth": {"ideal_warning_frame_3": "Warning! The car ahead is now approaching. Do not cross.", "critical_objects": ["car"], "expected_dominant_risk_frame_3": "high"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700001800},
-        "global_context": {"scene_type": "sidewalk", "surface": "wet_pavement", "main_hazard": "static_obstacle", "overall_risk_level": 0.35},
-        "detections": [
-          {"track_id": 160, "classification": {"class": "van", "confidence": 0.70, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.25, 0.2, 0.75, 0.70], "estimated_distance": 7.0, "azimuth_deg": 3}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "on_sidewalk"}},
-          {"track_id": 901, "classification": {"class": "person", "confidence": 0.42, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.6, 0.4, 0.75, 0.75], "estimated_distance": 5.0, "azimuth_deg": 20}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_right", "surface_relation": "on_sidewalk"}}
-        ]
-      },
-      {
-        "metadata": {"timestamp": 1700001801},
-        "global_context": {"scene_type": "sidewalk", "surface": "wet_pavement", "main_hazard": "static_obstacle", "overall_risk_level": 0.45},
-        "detections": [
-          {"track_id": 160, "classification": {"class": "van", "confidence": 0.76, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.23, 0.18, 0.77, 0.72], "estimated_distance": 5.5, "azimuth_deg": 2}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "on_sidewalk"}},
-          {"track_id": 902, "classification": {"class": "bicycle", "confidence": 0.38, "category": "dynamic"}, "spatial_metrics": {"bbox_normalized": [0.1, 0.5, 0.3, 0.85], "estimated_distance": 8.0, "azimuth_deg": -30}, "movement": {"movement_state": "approaching", "approach_delta": 0.5}, "semantic_relations": {"risk_level": "low", "spatial_relation": "on_left", "surface_relation": "road"}}
-        ]
-      },
-      {
-        "metadata": {"timestamp": 1700001802},
-        "global_context": {"scene_type": "sidewalk", "surface": "wet_pavement", "main_hazard": "close_static_obstacle", "overall_risk_level": 0.60},
-        "detections": [
-          {"track_id": 160, "classification": {"class": "van", "confidence": 0.82, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.20, 0.15, 0.80, 0.78], "estimated_distance": 3.8, "azimuth_deg": 1}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "on_sidewalk"}}
-        ]
-      }
+      {"metadata": {"timestamp": 1700001900}, "global_context": {"scene_type": "pedestrian_crossing"}, "detections": [{"track_id": 190, "classification": {"class": "car", "confidence": 0.90, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 8.0, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700001901}, "global_context": {"scene_type": "pedestrian_crossing"}, "detections": [{"track_id": 190, "classification": {"class": "car", "confidence": 0.93, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 6.5, "azimuth_deg": 0}, "movement": {"approach_delta": 1.0}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700001902}, "global_context": {"scene_type": "pedestrian_crossing"}, "detections": [{"track_id": 190, "classification": {"class": "car", "confidence": 0.97, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 4.0, "azimuth_deg": 0}, "movement": {"approach_delta": 1.8}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path"}}]}
     ]
   },
   {
     "scenario_id": "SCN020",
-    "name": "Scenario 20: Grocery Cart Left Unattended on Ramp",
-    "description": "A shopping cart is left on an accessible ramp, blocking the user's descent. Static obstacle on sloped surface. Focus: Low-speed, sloped-terrain static obstacle.",
-    "ground_truth": {
-      "ideal_warning_frame_3": "Caution! A shopping cart is blocking the ramp directly ahead.",
-      "critical_objects": ["cart"],
-      "expected_dominant_risk_frame_3": "medium"
-    },
+    "name": "Scenario 20: Delivery Robot Diverts Path",
+    "description": "Variant of SCN004. A small delivery robot approaches on the sidewalk but then turns into a building entrance.",
+    "ground_truth": {"ideal_warning_frame_3": "A small robot is on the sidewalk to your right.", "critical_objects": ["robot"], "expected_dominant_risk_frame_3": "low"},
     "frames": [
-      {
-        "metadata": {"timestamp": 1700001900},
-        "global_context": {"scene_type": "accessible_ramp", "surface": "concrete", "main_hazard": "static_obstacle_on_ramp", "overall_risk_level": 0.30},
-        "detections": [{"track_id": 170, "classification": {"class": "cart", "confidence": 0.75, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.35, 0.45, 0.65, 0.80], "estimated_distance": 5.0, "azimuth_deg": 2}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "on_ramp"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001901},
-        "global_context": {"scene_type": "accessible_ramp", "surface": "concrete", "main_hazard": "static_obstacle_on_ramp", "overall_risk_level": 0.50},
-        "detections": [{"track_id": 170, "classification": {"class": "cart", "confidence": 0.84, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.33, 0.48, 0.67, 0.85], "estimated_distance": 3.2, "azimuth_deg": 1}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium", "spatial_relation": "ahead", "surface_relation": "on_ramp"}}]
-      },
-      {
-        "metadata": {"timestamp": 1700001902},
-        "global_context": {"scene_type": "accessible_ramp", "surface": "concrete", "main_hazard": "close_static_obstacle_on_ramp", "overall_risk_level": 0.70},
-        "detections": [{"track_id": 170, "classification": {"class": "cart", "confidence": 0.90, "category": "static"}, "spatial_metrics": {"bbox_normalized": [0.30, 0.50, 0.70, 0.92], "estimated_distance": 1.8, "azimuth_deg": 0}, "movement": {"movement_state": "stationary", "approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path", "surface_relation": "on_ramp"}}]
-      }
+      {"metadata": {"timestamp": 1700002000}, "global_context": {"scene_type": "sidewalk_business"}, "detections": [{"track_id": 200, "classification": {"class": "robot", "confidence": 0.80, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 6.0, "azimuth_deg": 10}, "movement": {"approach_delta": 0.8}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700002001}, "global_context": {"scene_type": "sidewalk_business"}, "detections": [{"track_id": 200, "classification": {"class": "robot", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 4.0, "azimuth_deg": 5}, "movement": {"approach_delta": 1.0}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700002002}, "global_context": {"scene_type": "sidewalk_business"}, "detections": [{"track_id": 200, "classification": {"class": "robot", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 3.5, "azimuth_deg": 45}, "movement": {"approach_delta": -0.1}, "semantic_relations": {"risk_level": "low"}}] }
     ]
   }
 ]

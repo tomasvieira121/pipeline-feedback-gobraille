@@ -16,20 +16,23 @@ logger = logging.getLogger("SLMProcessing")
 
 # ollama model parameters
 
-OLLAMA_HOST: str  = os.getenv("OLLAMA_HOST",  "http://localhost:11434")
-OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "phi4-mini")
+OLLAMA_HOST: str  = os.getenv("OLLAMA_HOST")
+OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL")
 
 # max tokens per risk, so that higher risk gets shorter text
 MAX_TOKENS_BY_RISK: dict[str, int] = {
     "high":    40,   
-    "medium":  70,   
-    "low":     90,   
+    "medium":  70,  
+    "low":     90,  
     "default": 60,   
 }
 
 # prompt guidelines
+# system prompt is assembled from a risk-specific instruction + shared rules
+# the instruction tone scales with urgency: imperative for high, calm for low
 
 # risk specific instruct set
+# one entry per risk level; keys must match the values used in semantic_relations
 _RISK_INSTRUCTIONS: dict[str, str] = {
     "high": (
         "You are an emergency navigation assistant for a visually impaired pedestrian. "
@@ -50,6 +53,7 @@ _RISK_INSTRUCTIONS: dict[str, str] = {
     ),
 }
 
+# rules appended to every prompt regardless of risk level
 _COMMON_RULES = (
     "\n\nRules you MUST follow:\n"
     "- Reply ONLY with the spoken warning, no JSON, no explanations, no bullet points.\n"
@@ -60,19 +64,21 @@ _COMMON_RULES = (
 )
 
 
+# assembles the final system prompt from the risk instruction + common rules
 def build_system_prompt(dominant_risk: str) -> str:
 
     instruction = _RISK_INSTRUCTIONS.get(
         dominant_risk.lower(),
-        _RISK_INSTRUCTIONS["low"],
+        _RISK_INSTRUCTIONS["low"],  # fallback to low if risk level is unknown
     )
     return instruction + _COMMON_RULES
 
 
 # utils
 
+# returns the highest risk level found across all detections
 def _get_dominant_risk(detections: list[dict]) -> str:
-   
+
     priority_order = ["high", "medium", "low"]
 
     for level in priority_order:
@@ -88,14 +94,16 @@ def _get_dominant_risk(detections: list[dict]) -> str:
     return "default"
 
 
+# removes internal pipeline fields (prefixed with _) before sending to the model
 def _strip_internal_fields(detections: list[dict]) -> list[dict]:
-   
+
     cleaned = []
     for det in detections:
         cleaned.append({k: v for k, v in det.items() if not k.startswith("_")})
     return cleaned
 
 
+# serializes the payload to JSON, stripping internal fields first
 def _build_user_message(payload: dict) -> str:
 
     clean_payload = dict(payload)
@@ -105,7 +113,8 @@ def _build_user_message(payload: dict) -> str:
     return json.dumps(clean_payload, indent=2, ensure_ascii=False)
 
 
-# Ollama Client
+# ollama client
+# wraps the /api/chat endpoint; supports both single-shot and streaming inference
 
 class OllamaClient:
 
@@ -115,24 +124,33 @@ class OllamaClient:
         model: str = OLLAMA_MODEL,
         timeout: int = 30,
     ) -> None:
+        if not host:
+            raise ValueError(
+                "OLLAMA_HOST is not set. Define it in your .env file or pass it explicitly."
+            )
+        if not model:
+            raise ValueError(
+                "OLLAMA_MODEL is not set. Define it in your .env file or pass it explicitly."
+            )
         self.host = host.rstrip("/")
         self.model = model
         self.timeout = timeout
         self._chat_url = f"{self.host}/api/chat"
 
+    # single-shot inference — returns text only, no streaming
     def generate(
         self,
         system_prompt: str,
         user_message: str,
         max_tokens: int = 60,
     ) -> str:
-        
+
         payload = {
             "model": self.model,
             "stream": False,
             "options": {
-                "num_predict": max_tokens,  
-                "temperature": 0.2,         
+                "num_predict": max_tokens,  # token budget
+                "temperature": 0.2,         # low randomness for consistent warnings
                 "top_p": 0.9,
             },
             "messages": [
@@ -168,13 +186,14 @@ class OllamaClient:
 
         return generated_text
 
+    # streaming inference — returns text + latency/token metrics dict
     def generate_with_metrics(
         self,
         system_prompt: str,
         user_message: str,
         max_tokens: int = 60,
     ) -> tuple[str, dict]:
-        
+
         payload = {
             "model": self.model,
             "stream": True,
@@ -207,8 +226,8 @@ class OllamaClient:
         for line in response.iter_lines():
             if line:
                 chunk = json.loads(line.decode("utf-8"))
-                
-                # Records the first generated token (TTFT)
+
+                # records the first generated token (TTFT)
                 content = chunk.get("message", {}).get("content", "")
                 if content:
                     if t_first_token is None:
@@ -219,12 +238,12 @@ class OllamaClient:
                     final_data = chunk
 
         t_end = time.perf_counter()
-        
-        # Time calculations (in milliseconds)
+
+        # time calculations (in milliseconds)
         ttft_ms = (t_first_token - t_start) * 1000 if t_first_token else (t_end - t_start) * 1000
         latency_ms = (t_end - t_start) * 1000
 
-        # Convert Ollama durations (nanoseconds -> milliseconds)
+        # convert Ollama durations (nanoseconds -> milliseconds)
         prompt_eval_duration_ms = final_data.get("prompt_eval_duration", 0) / 1_000_000.0
         eval_duration_ms = final_data.get("eval_duration", 0) / 1_000_000.0
         total_duration_ms = final_data.get("total_duration", 0) / 1_000_000.0
@@ -250,10 +269,10 @@ class OllamaClient:
         return generated_text.strip(), metrics
 
 
-
+# high-level processor
+# orchestrates prompt building, token budgeting, and model inference
 
 class SLMProcessor:
-    
 
     def __init__(
         self,
@@ -264,8 +283,9 @@ class SLMProcessor:
         self.client = OllamaClient(host=host, model=model)
         self.max_tokens_by_risk = max_tokens_by_risk or MAX_TOKENS_BY_RISK
 
-    def process(self, prioritized_payload: dict) -> str:
-       
+    # prepares all inputs needed for inference (shared by process and process_with_metrics)
+    def _prepare_inference(self, prioritized_payload: dict) -> tuple[str, str, str, int]:
+
         detections = prioritized_payload.get("detections", [])
 
         dominant_risk = _get_dominant_risk(detections)
@@ -279,12 +299,18 @@ class SLMProcessor:
             dominant_risk, max_tokens, len(detections),
         )
 
-
         system_prompt = build_system_prompt(dominant_risk)
         user_message  = _build_user_message(prioritized_payload)
 
         logger.debug("System prompt:\n%s", system_prompt)
         logger.debug("User message (payload):\n%s", user_message)
+
+        return dominant_risk, system_prompt, user_message, max_tokens
+
+    # runs inference without collecting metrics — suitable for live use
+    def process(self, prioritized_payload: dict) -> str:
+
+        _, system_prompt, user_message, max_tokens = self._prepare_inference(prioritized_payload)
 
         warning_text = self.client.generate(
             system_prompt=system_prompt,
@@ -295,26 +321,10 @@ class SLMProcessor:
         logger.info("Generated warning: \"%s\"", warning_text)
         return warning_text
 
+    # runs inference with streaming and returns full latency/token metrics
     def process_with_metrics(self, prioritized_payload: dict) -> tuple[str, dict]:
-    
-        detections = prioritized_payload.get("detections", [])
 
-        dominant_risk = _get_dominant_risk(detections)
-        max_tokens = self.max_tokens_by_risk.get(
-            dominant_risk,
-            self.max_tokens_by_risk["default"],
-        )
-
-        logger.info(
-            "Dominant risk: '%s' | token budget: %d | detections: %d",
-            dominant_risk, max_tokens, len(detections),
-        )
-
-        system_prompt = build_system_prompt(dominant_risk)
-        user_message  = _build_user_message(prioritized_payload)
-
-        logger.debug("System prompt:\n%s", system_prompt)
-        logger.debug("User message (payload):\n%s", user_message)
+        dominant_risk, system_prompt, user_message, max_tokens = self._prepare_inference(prioritized_payload)
 
         warning_text, metrics = self.client.generate_with_metrics(
             system_prompt=system_prompt,
@@ -324,10 +334,9 @@ class SLMProcessor:
 
         metrics["dominant_risk"] = dominant_risk
         metrics["max_tokens_budget"] = max_tokens
-        
+
         logger.info("Generated warning with metrics: \"%s\"", warning_text)
         return warning_text, metrics
-
 
 
 if __name__ == "__main__":
@@ -357,11 +366,6 @@ if __name__ == "__main__":
             warning = slm.process(prioritized)
             print(f"  ▶ {warning}")
         except requests.ConnectionError:
-            print(
-                "  [ERROR] Ollama server not accessible. "
-                "Ensure Docker is running:\n"
-                "  docker compose up -d"
-            )
+            print( "  Ollama server not accessible. " )
         except requests.HTTPError as exc:
-            print(f"  [HTTP ERROR] {exc}")
-
+            print(f" http error {exc}")

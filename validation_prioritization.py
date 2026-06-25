@@ -11,20 +11,22 @@ logging.basicConfig(
 logger = logging.getLogger("ValidationPrioritization")
 
 
-# parameter
+# parameters
 
-# detections with confidence lower that this are discarded
+# detections with confidence lower than this are discarded
 CONFIDENCE_THRESHOLD: float = 0.60
 
 # number of detections kept after prioritization
 TOP_N_DETECTIONS: int = 3
 
-# objects with higher distance are ignored
-MAX_DISTANCE_STATIC: float = 10.0  
-MAX_DISTANCE_DYNAMIC: float = 20.0 
+# objects beyond these distances are ignored
+MAX_DISTANCE_STATIC: float = 10.0   # meters — static objects
+MAX_DISTANCE_DYNAMIC: float = 20.0  # meters — dynamic objects
 
+# azimuth threshold for objects considered in the direct path
 AZIMUTH_DIRECT_PATH: float = 30.0
 
+# risk level weights used in the priority score calculation
 RISK_LEVEL_WEIGHTS: dict[str, float] = {
     "high":   1.0,
     "medium": 0.6,
@@ -32,7 +34,9 @@ RISK_LEVEL_WEIGHTS: dict[str, float] = {
 }
 
 
+# utils
 
+# safe nested dict access with a default fallback
 def _get_nested(obj: dict, *keys: str, default: Any = None) -> Any:
     for key in keys:
         if not isinstance(obj, dict):
@@ -69,8 +73,7 @@ def _distance_score(distance: float, max_dist: float) -> float:
     score = 1.0 - (distance / max_dist)
     return max(0.0, min(1.0, score))
 
-
-#converts azimuth degrees int o centrality score
+# converts azimuth degrees into centrality score
 def _azimuth_score(azimuth_deg: float) -> float:
     abs_az = abs(azimuth_deg)
     if abs_az >= 90.0:
@@ -78,7 +81,7 @@ def _azimuth_score(azimuth_deg: float) -> float:
     return 1.0 - (abs_az / 90.0)
 
 
-# validation stage where unreliable dettections are removed
+# validation stage — unreliable detections are removed
 
 class DetectionValidator:
 
@@ -95,8 +98,8 @@ class DetectionValidator:
         self.min_persistence_frames = min_persistence_frames
         self.track_history: dict[int, int] = {}
 
+    # clears track history between scenarios
     def reset(self) -> None:
-
         self.track_history.clear()
         logger.info("Tracking history reset.")
 
@@ -105,8 +108,8 @@ class DetectionValidator:
         raw_detections: list[dict] = payload.get("detections", [])
         valid: list[dict] = []
 
-        # First, increment history for all track_ids present in this frame
-        # so we can check their persistence.
+        # first, increment history for all track_ids present in this frame
+        # so we can check their persistence
         for det in raw_detections:
             track_id = det.get("track_id")
             if track_id is not None:
@@ -165,11 +168,11 @@ class DetectionValidator:
         return valid
 
 
-# prioritiztion stage
+# prioritization stage
+# the calculated scores are multiplied by the respective weights
 
 class DetectionPrioritizer:
- 
-# the calculated scores are multiplied by the respective weights
+
     def __init__(
         self,
         w_risk: float = 0.35,
@@ -188,6 +191,7 @@ class DetectionPrioritizer:
         self.max_distance_static = max_distance_static
         self.max_distance_dynamic = max_distance_dynamic
 
+    # computes a weighted composite score for a single detection
     def _compute_score(self, det: dict) -> float:
         category = _get_nested(det, "classification", "category", default="")
         risk_label = _get_nested(det, "semantic_relations", "risk_level", default="low")
@@ -220,7 +224,7 @@ class DetectionPrioritizer:
         )
         return score
 
-    #sorts the detection list
+    # sorts the detection list by score and truncates to top-N
     def prioritize(self, valid_detections: list[dict]) -> list[dict]:
 
         if not valid_detections:
@@ -235,10 +239,10 @@ class DetectionPrioritizer:
             enriched["_priority_score"] = round(score, 4)
             scored.append(enriched)
 
-        # Sort by descending score
+        # sort by descending score
         scored.sort(key=lambda d: d["_priority_score"], reverse=True)
 
-        # Truncate to top-N
+        # truncate to top-N
         top = scored[: self.top_n]
 
         logger.info(
@@ -258,9 +262,9 @@ class DetectionPrioritizer:
         return top
 
 
+# pipeline — chains validation and prioritization into a single process call
 
 class ValidationPrioritizationPipeline:
-
 
     def __init__(
         self,
@@ -282,6 +286,7 @@ class ValidationPrioritizationPipeline:
             max_distance_dynamic=max_distance_dynamic,
         )
 
+    # delegates reset to validator (clears track history between scenarios)
     def reset(self) -> None:
         self.validator.reset()
 
@@ -293,13 +298,13 @@ class ValidationPrioritizationPipeline:
             len(raw_payload.get("detections", [])),
         )
 
-        # Step 1 — Validation
+        # step 1 — validation
         valid_detections = self.validator.validate(raw_payload)
 
-        # Step 2 — Prioritization
+        # step 2 — prioritization
         prioritized_detections = self.prioritizer.prioritize(valid_detections)
 
-        # Assemble the output payload preserving metadata and global_context
+        # assemble the output payload preserving metadata and global_context
         output_payload = {
             "metadata": raw_payload.get("metadata", {}),
             "global_context": raw_payload.get("global_context", {}),
