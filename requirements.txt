@@ -1,0 +1,5 @@
+requests>=2.28.0
+numpy>=1.21.0
+sounddevice>=0.4.5
+piper-tts>=1.2.0
+python-dotenv>=1.0.0

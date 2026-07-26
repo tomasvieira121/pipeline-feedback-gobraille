@@ -99,11 +99,11 @@ def main():
             print(f"\n  [Frame {f_idx}/{len(frames)}] Processing...")
 
             t_pipeline_start = time.perf_counter()
-            # A) validation and prioritization
+            # validation and prioritization
             prioritized_payload = pipeline.process(raw_frame)
             pipeline_time_ms = (time.perf_counter() - t_pipeline_start) * 1000
 
-            # B) SLM processing and metric measurement
+            # SLM processing and metric measurement
             raw_dets_count = len(raw_frame.get("detections", []))
             valid_dets_count = len(prioritized_payload.get("detections", []))
 
