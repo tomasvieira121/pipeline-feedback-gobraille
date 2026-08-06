@@ -113,14 +113,15 @@ class PiperStreamingTTS:
 
     # synthesizes text with automatic fallback if length_scale is not supported by piper version
     def _synthesize_text(self, text: str, speed_scale: float):
+        kwargs = {"length_scale": speed_scale}
         if hasattr(self.voice, "synthesize_stream_raw"):
             try:
-                return self.voice.synthesize_stream_raw(text, length_scale=speed_scale)
+                return self.voice.synthesize_stream_raw(text, **kwargs)
             except TypeError:
                 return self.voice.synthesize_stream_raw(text)
         elif hasattr(self.voice, "synthesize"):
             try:
-                return self.voice.synthesize(text, length_scale=speed_scale)
+                return self.voice.synthesize(text, **kwargs)
             except TypeError:
                 return self.voice.synthesize(text)
         raise AttributeError("PiperVoice instance does not support recognized synthesis methods.")
