@@ -37,10 +37,25 @@ def main():
     ollama_host = os.getenv("OLLAMA_HOST")
     ollama_model = os.getenv("OLLAMA_MODEL")
 
+    # baseline configuration from env or command line arguments
+    env_baseline = os.getenv("RUN_BASELINE", "false").strip().lower() in ("true", "1", "yes")
+    cli_baseline = "--baseline" in sys.argv
+    cli_pipeline = "--pipeline" in sys.argv
+
+    if cli_baseline:
+        run_baseline = True
+    elif cli_pipeline:
+        run_baseline = False
+    else:
+        run_baseline = env_baseline
+
+    mode_label = "BASELINE (Raw Unfiltered Input)" if run_baseline else "PIPELINE (Validated & Prioritized)"
+
     print("\n" + "=" * 80)
-    print(f" STARTING ASSISTED NAVIGATION PIPELINE TEST ")
-    print(f" SLM Model: {ollama_model}")
-    print(f" Ollama Server: {ollama_host}")
+    print(f" STARTING ASSISTED NAVIGATION TEST ")
+    print(f" Mode:        {mode_label}")
+    print(f" SLM Model:   {ollama_model}")
+    print(f" Ollama Host: {ollama_host}")
     print("=" * 80 + "\n")
 
     # start pipeline components
@@ -68,6 +83,8 @@ def main():
             "timestamp": datetime.now().isoformat(),
             "ollama_model": ollama_model,
             "ollama_host": ollama_host,
+            "run_baseline": run_baseline,
+            "execution_mode": "baseline" if run_baseline else "pipeline",
             "confidence_threshold": 0.60,
             "min_persistence_frames": 2,
             "top_n_detections": 3
@@ -98,20 +115,24 @@ def main():
         for f_idx, raw_frame in enumerate(frames, start=1):
             print(f"\n  [Frame {f_idx}/{len(frames)}] Processing...")
 
-            t_pipeline_start = time.perf_counter()
-            # validation and prioritization
-            prioritized_payload = pipeline.process(raw_frame)
-            pipeline_time_ms = (time.perf_counter() - t_pipeline_start) * 1000
+            if run_baseline:
+                pipeline_time_ms = 0.0
+                payload_to_slm = raw_frame
+            else:
+                t_pipeline_start = time.perf_counter()
+                prioritized_payload = pipeline.process(raw_frame)
+                pipeline_time_ms = (time.perf_counter() - t_pipeline_start) * 1000
+                payload_to_slm = prioritized_payload
 
             # SLM processing and metric measurement
             raw_dets_count = len(raw_frame.get("detections", []))
-            valid_dets_count = len(prioritized_payload.get("detections", []))
+            sent_dets_count = len(payload_to_slm.get("detections", []))
 
             warning_text = ""
             metrics = {}
 
             try:
-                warning_text, metrics = processor.process_with_metrics(prioritized_payload)
+                warning_text, metrics = processor.process_with_metrics(payload_to_slm)
                 metrics["pipeline_processing_time_ms"] = round(pipeline_time_ms, 1)
                 metrics["end_to_end_latency_ms"] = round(metrics["latency_ms"] + pipeline_time_ms, 1)
                 flat_frames_metrics.append(metrics)
@@ -130,14 +151,17 @@ def main():
             frame_log = {
                 "frame_index": f_idx,
                 "raw_input": raw_frame,
-                "prioritized_payload": prioritized_payload,
+                "prioritized_payload": payload_to_slm,
                 "warning_text": warning_text,
                 "metrics": metrics
             }
             scenario_log["frames"].append(frame_log)
 
             # displays frame summary in the terminal
-            print(f"     └─ Detections: {raw_dets_count} raw ➔ {valid_dets_count} validated/prioritized")
+            if run_baseline:
+                print(f"     └─ Detections: {raw_dets_count} raw (baseline unfiltered)")
+            else:
+                print(f"     └─ Detections: {raw_dets_count} raw ➔ {sent_dets_count} validated/prioritized")
             if "dominant_risk" in metrics:
                 print(f"     └─ Dominant Risk: '{metrics['dominant_risk'].upper()}'")
             print(f"     └─ TTFT (Client): {metrics.get('ttft_ms')} ms")
@@ -162,7 +186,9 @@ def main():
         "total_frames": len(flat_frames_metrics),
         "avg_ttft_ms": round(avg_ttft, 1),
         "avg_end_to_end_latency_ms": round(avg_latency, 1),
-        "total_tokens_generated": total_tokens
+        "total_tokens_generated": total_tokens,
+        "successful_inferences": len(successful_frames),
+        "failed_inferences": len(flat_frames_metrics) - len(successful_frames)
     }
 
     # output results file
@@ -171,7 +197,8 @@ def main():
 
     timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
     sanitized_model = sanitize_filename(ollama_model)
-    filename = f"results_{sanitized_model}_{timestamp_str}.json"
+    baseline_suffix = "_baseline" if run_baseline else ""
+    filename = f"results_{sanitized_model}{baseline_suffix}_{timestamp_str}.json"
     filepath = os.path.join(results_dir, filename)
 
     with open(filepath, "w", encoding="utf-8") as f:
@@ -182,13 +209,16 @@ def main():
     print(" TEST EXECUTION REPORT ")
     print("=" * 80)
     print(f"Log File: {filepath}")
-    print(f"Tested Models: {ollama_model}")
+    print(f"Mode:     {mode_label}")
+    print(f"Model:    {ollama_model}")
     print(f"Average TTFT (Time-to-First-Token): {results_data['test_summary']['avg_ttft_ms']} ms")
     print(f"Average End-to-End Latency:      {results_data['test_summary']['avg_end_to_end_latency_ms']} ms")
     print(f"Total Generated Tokens:          {results_data['test_summary']['total_tokens_generated']}")
+    print(f"Successful / Total Inferences:   {results_data['test_summary']['successful_inferences']} / {results_data['test_summary']['total_frames']}")
     print("-" * 80)
 
-    print(f"{'Scenario':<10} | {'Frame':<5} | {'Raw ➔ Val':<12} | {'Risk':<8} | {'TTFT (ms)':<10} | {'E2E Lat (ms)':<12}")
+    det_col_header = "Raw (Base)" if run_baseline else "Raw ➔ Val"
+    print(f"{'Scenario':<10} | {'Frame':<5} | {det_col_header:<12} | {'Risk':<8} | {'TTFT (ms)':<10} | {'E2E Lat (ms)':<12}")
     print("-" * 80)
     for sc in results_data["scenarios"]:
         sc_num = sc["scenario_index"]
@@ -196,11 +226,12 @@ def main():
             f_num = fr["frame_index"]
             raw_c = len(fr["raw_input"].get("detections", []))
             val_c = len(fr["prioritized_payload"].get("detections", []))
+            det_str = f"{raw_c} (raw)" if run_baseline else f"{raw_c} ➔ {val_c}"
             m = fr["metrics"]
             risk = m.get("dominant_risk", "N/A")
             ttft = m.get("ttft_ms", 0.0)
             e2e = m.get("end_to_end_latency_ms", 0.0)
-            print(f"Scenario {sc_num:<2} | {f_num:<5} | {f'{raw_c} ➔ {val_c}':<12} | {risk:<8} | {ttft:<10.1f} | {e2e:<12.1f}")
+            print(f"Scenario {sc_num:<2} | {f_num:<5} | {det_str:<12} | {risk:<8} | {ttft:<10.1f} | {e2e:<12.1f}")
 
     print("=" * 80 + "\n")
 
