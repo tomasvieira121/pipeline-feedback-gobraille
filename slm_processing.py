@@ -1,8 +1,10 @@
 import json
 import logging
 import os
+import re
 import time
 from typing import Any
+
 
 import requests
 
@@ -192,6 +194,8 @@ class OllamaClient:
         system_prompt: str,
         user_message: str,
         max_tokens: int = 60,
+        tts: Any = None,
+        dominant_risk: str = "default",
     ) -> tuple[str, dict]:
 
         payload = {
@@ -220,8 +224,16 @@ class OllamaClient:
         response.raise_for_status()
 
         t_first_token = None
+        t_first_audio = None
         generated_text = ""
         final_data = {}
+
+        buffer = ""
+
+        def _on_first_audio(ts: float):
+            nonlocal t_first_audio
+            if t_first_audio is None:
+                t_first_audio = ts
 
         for line in response.iter_lines():
             if line:
@@ -233,14 +245,34 @@ class OllamaClient:
                     if t_first_token is None:
                         t_first_token = time.perf_counter()
                     generated_text += content
+                    buffer += content
+
+                    # if streaming TTS is enabled, break text by punctuation and queue chunks immediately
+                    if tts is not None:
+                        match = re.search(r'[.!?;,]', buffer)
+                        if match:
+                            split_pos = match.end()
+                            text_chunk = buffer[:split_pos].strip()
+                            buffer = buffer[split_pos:]
+                            if text_chunk:
+                                tts.process_chunk(text_chunk, risk_level=dominant_risk, on_first_audio=_on_first_audio)
 
                 if chunk.get("done", False):
                     final_data = chunk
+
+        # send remaining buffer content to TTS if any
+        if tts is not None and buffer.strip():
+            tts.process_chunk(buffer.strip(), risk_level=dominant_risk, on_first_audio=_on_first_audio)
+
+        # wait for TTS synthesis of current warning to finish before finalizing metrics
+        if tts is not None:
+            tts.wait_until_done(timeout=3.0)
 
         t_end = time.perf_counter()
 
         # time calculations (in milliseconds)
         ttft_ms = (t_first_token - t_start) * 1000 if t_first_token else (t_end - t_start) * 1000
+        ttfa_ms = (t_first_audio - t_start) * 1000 if t_first_audio else 0.0
         latency_ms = (t_end - t_start) * 1000
 
         # convert Ollama durations (nanoseconds -> milliseconds)
@@ -250,6 +282,7 @@ class OllamaClient:
 
         metrics = {
             "ttft_ms": round(ttft_ms, 1),
+            "ttfa_ms": round(ttfa_ms, 1),
             "latency_ms": round(latency_ms, 1),
             "prompt_tokens": final_data.get("prompt_eval_count", 0),
             "response_tokens": final_data.get("eval_count", 0),
@@ -259,8 +292,9 @@ class OllamaClient:
         }
 
         logger.info(
-            "Streaming inference completed: TTFT=%.1f ms | Latency=%.1f ms | Tokens=%d | model: %s",
+            "Streaming inference completed: TTFT=%.1f ms | TTFA=%.1f ms | Latency=%.1f ms | Tokens=%d | model: %s",
             ttft_ms,
+            ttfa_ms,
             latency_ms,
             metrics["response_tokens"],
             self.model,
@@ -322,7 +356,7 @@ class SLMProcessor:
         return warning_text
 
     # runs inference with streaming and returns full latency/token metrics
-    def process_with_metrics(self, prioritized_payload: dict) -> tuple[str, dict]:
+    def process_with_metrics(self, prioritized_payload: dict, tts: Any = None) -> tuple[str, dict]:
 
         dominant_risk, system_prompt, user_message, max_tokens = self._prepare_inference(prioritized_payload)
 
@@ -330,6 +364,8 @@ class SLMProcessor:
             system_prompt=system_prompt,
             user_message=user_message,
             max_tokens=max_tokens,
+            tts=tts,
+            dominant_risk=dominant_risk,
         )
 
         metrics["dominant_risk"] = dominant_risk
@@ -337,6 +373,7 @@ class SLMProcessor:
 
         logger.info("Generated warning with metrics: \"%s\"", warning_text)
         return warning_text, metrics
+
 
 
 if __name__ == "__main__":

@@ -8,6 +8,8 @@ import numpy as np
 import sounddevice as sd
 from piper import PiperVoice
 
+
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s — %(message)s",
@@ -75,7 +77,7 @@ class PiperStreamingTTS:
                 break
 
     # adds a text chunk to the queue for immediate synthesis
-    def process_chunk(self, text_chunk: str, risk_level: str = "default") -> None:
+    def process_chunk(self, text_chunk: str, risk_level: str = "default", on_first_audio: callable = None) -> None:
 
         if text_chunk and text_chunk.strip():
             # if high risk, clear pending queues to prioritize emergency warning
@@ -83,20 +85,50 @@ class PiperStreamingTTS:
                 logger.info("High risk detected: canceling pending text/audio to prioritize emergency warning...")
                 self.clear_queue()
 
-            self.text_queue.put({"text": text_chunk.strip(), "risk": risk_level})
+            self.text_queue.put({
+                "text": text_chunk.strip(),
+                "risk": risk_level,
+                "on_first_audio": on_first_audio,
+            })
 
     # splits a full text by punctuation marks and queues each chunk for streaming
-    def process_text_stream(self, text: str, risk_level: str = "default") -> None:
+    def process_text_stream(self, text: str, risk_level: str = "default", on_first_audio: callable = None) -> None:
 
         if not text:
             return
         chunks = re.split(r'(?<=[.!?;,])\s+', text.strip())
-        for chunk in chunks:
+        for idx, chunk in enumerate(chunks):
             if chunk.strip():
-                self.process_chunk(chunk.strip(), risk_level=risk_level)
+                # only attach on_first_audio callback to the very first chunk of the stream
+                cb = on_first_audio if idx == 0 else None
+                self.process_chunk(chunk.strip(), risk_level=risk_level, on_first_audio=cb)
+
+    # waits until all queued text and audio chunks have been synthesized and played
+    def wait_until_done(self, timeout: float = 3.0) -> None:
+        start_time = time.perf_counter()
+        while time.perf_counter() - start_time < timeout:
+            if self.text_queue.unfinished_tasks == 0 and self.audio_queue.unfinished_tasks == 0:
+                break
+            time.sleep(0.02)
+
+    # synthesizes text with automatic fallback if length_scale is not supported by piper version
+    def _synthesize_text(self, text: str, speed_scale: float):
+        if hasattr(self.voice, "synthesize_stream_raw"):
+            try:
+                return self.voice.synthesize_stream_raw(text, length_scale=speed_scale)
+            except TypeError:
+                return self.voice.synthesize_stream_raw(text)
+        elif hasattr(self.voice, "synthesize"):
+            try:
+                return self.voice.synthesize(text, length_scale=speed_scale)
+            except TypeError:
+                return self.voice.synthesize(text)
+        raise AttributeError("PiperVoice instance does not support recognized synthesis methods.")
+
 
     # background worker thread that synthesizes text chunks into PCM audio
     def _synthesis_worker(self) -> None:
+
 
         while self.is_running:
             try:
@@ -106,6 +138,7 @@ class PiperStreamingTTS:
                 
                 text = item["text"]
                 risk = item["risk"]
+                on_first_audio_cb = item.get("on_first_audio")
                 
                 # speed adjustment based on risk level
                 speed_scale = 1.0 
@@ -116,16 +149,23 @@ class PiperStreamingTTS:
                 
                 logger.debug("[Synthesize] Risk: %s | Speed: %.1f | Text: %s", risk, speed_scale, text)
                 
-                if hasattr(self.voice, "synthesize_stream_raw"):
-                    audio_stream = self.voice.synthesize_stream_raw(text, length_scale=speed_scale)
-                elif hasattr(self.voice, "synthesize"):
-                    audio_stream = self.voice.synthesize(text, length_scale=speed_scale)
-                else:
-                    logger.error("PiperVoice instance does not support recognized synthesis methods.")
+                try:
+                    audio_stream = self._synthesize_text(text, speed_scale)
+                except Exception as e:
+                    logger.error("Audio synthesis error for text '%s': %s", text, e)
                     self.text_queue.task_done()
                     continue
+
                 
+                first_chunk = True
                 for audio_bytes in audio_stream:
+                    if first_chunk and on_first_audio_cb:
+                        try:
+                            on_first_audio_cb(time.perf_counter())
+                        except Exception as cb_err:
+                            logger.error("Error in on_first_audio callback: %s", cb_err)
+                        first_chunk = False
+
                     if isinstance(audio_bytes, bytes):
                         audio_data = np.frombuffer(audio_bytes, dtype=np.int16)
                     elif isinstance(audio_bytes, np.ndarray):
@@ -139,6 +179,7 @@ class PiperStreamingTTS:
                 continue
             except Exception as e:
                 logger.error("Audio synthesis error: %s", e)
+
 
     # background worker thread that plays audio on the sound device
     def _playback_worker(self) -> None:

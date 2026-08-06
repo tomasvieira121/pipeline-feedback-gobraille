@@ -49,13 +49,26 @@ def main():
     else:
         run_baseline = env_baseline
 
+    # tts configuration from env or command line arguments
+    env_tts = os.getenv("USE_TTS", "false").strip().lower() in ("true", "1", "yes")
+    cli_tts = "--tts" in sys.argv or "--enable-tts" in sys.argv
+    cli_no_tts = "--no-tts" in sys.argv or "--disable-tts" in sys.argv
+
+    if cli_tts:
+        use_tts = True
+    elif cli_no_tts:
+        use_tts = False
+    else:
+        use_tts = env_tts
+
     mode_label = "BASELINE (Raw Unfiltered Input)" if run_baseline else "PIPELINE (Validated & Prioritized)"
 
     print("\n" + "=" * 80)
     print(f" STARTING ASSISTED NAVIGATION TEST ")
-    print(f" Mode:        {mode_label}")
-    print(f" SLM Model:   {ollama_model}")
-    print(f" Ollama Host: {ollama_host}")
+    print(f" Mode:          {mode_label}")
+    print(f" SLM Model:     {ollama_model}")
+    print(f" Ollama Host:   {ollama_host}")
+    print(f" TTS Enabled:   {use_tts}")
     print("=" * 80 + "\n")
 
     # start pipeline components
@@ -77,6 +90,18 @@ def main():
         print(f"Failed to initialize SLMProcessor: {e}")
         sys.exit(1)
 
+    # initialize TTS engine if enabled
+    tts_engine = None
+    if use_tts:
+        try:
+            from tts_module import PiperStreamingTTS
+            tts_engine = PiperStreamingTTS()
+            print("🔊 PiperStreamingTTS initialized successfully.")
+        except Exception as e:
+            print(f"⚠️ Could not initialize PiperStreamingTTS: {e}. Continuing test run without audio synthesis.")
+            use_tts = False
+            tts_engine = None
+
     # results container
     results_data = {
         "test_metadata": {
@@ -84,6 +109,7 @@ def main():
             "ollama_model": ollama_model,
             "ollama_host": ollama_host,
             "run_baseline": run_baseline,
+            "use_tts": use_tts,
             "execution_mode": "baseline" if run_baseline else "pipeline",
             "confidence_threshold": 0.60,
             "min_persistence_frames": 2,
@@ -95,96 +121,107 @@ def main():
     # flat list for aggregate metric calculation at the end
     flat_frames_metrics = []
 
-    # scenario execution
-    for idx, sc_def in enumerate(scenarios_definition, start=1):
-        print(f"\nScenario {idx}: {sc_def['name']}")
-        print(f"   Description: {sc_def['description']}")
-        print("-" * 80)
+    try:
+        # scenario execution
+        for idx, sc_def in enumerate(scenarios_definition, start=1):
+            print(f"\nScenario {idx}: {sc_def['name']}")
+            print(f"   Description: {sc_def['description']}")
+            print("-" * 80)
 
-        pipeline.reset()
+            pipeline.reset()
 
-        frames = sc_def["frames"]
-        scenario_log = {
-            "scenario_index": idx,
-            "scenario_name": sc_def["name"],
-            "description": sc_def["description"],
-            "ground_truth": sc_def.get("ground_truth", {}),
-            "frames": []
-        }
-
-        for f_idx, raw_frame in enumerate(frames, start=1):
-            print(f"\n  [Frame {f_idx}/{len(frames)}] Processing...")
-
-            if run_baseline:
-                pipeline_time_ms = 0.0
-                payload_to_slm = raw_frame
-            else:
-                t_pipeline_start = time.perf_counter()
-                prioritized_payload = pipeline.process(raw_frame)
-                pipeline_time_ms = (time.perf_counter() - t_pipeline_start) * 1000
-                payload_to_slm = prioritized_payload
-
-            # SLM processing and metric measurement
-            raw_dets_count = len(raw_frame.get("detections", []))
-            sent_dets_count = len(payload_to_slm.get("detections", []))
-
-            warning_text = ""
-            metrics = {}
-
-            try:
-                warning_text, metrics = processor.process_with_metrics(payload_to_slm)
-                metrics["pipeline_processing_time_ms"] = round(pipeline_time_ms, 1)
-                metrics["end_to_end_latency_ms"] = round(metrics["latency_ms"] + pipeline_time_ms, 1)
-                flat_frames_metrics.append(metrics)
-            except Exception as e:
-                print(f"  ❌ Error during SLM inference: {e}")
-                warning_text = f"[INFERENCE ERROR: {e}]"
-                metrics = {
-                    "ttft_ms": 0.0,
-                    "latency_ms": 0.0,
-                    "pipeline_processing_time_ms": round(pipeline_time_ms, 1),
-                    "end_to_end_latency_ms": 0.0,
-                    "error": str(e)
-                }
-
-            # log frame data
-            frame_log = {
-                "frame_index": f_idx,
-                "raw_input": raw_frame,
-                "prioritized_payload": payload_to_slm,
-                "warning_text": warning_text,
-                "metrics": metrics
+            frames = sc_def["frames"]
+            scenario_log = {
+                "scenario_index": idx,
+                "scenario_name": sc_def["name"],
+                "description": sc_def["description"],
+                "ground_truth": sc_def.get("ground_truth", {}),
+                "frames": []
             }
-            scenario_log["frames"].append(frame_log)
 
-            # displays frame summary in the terminal
-            if run_baseline:
-                print(f"     └─ Detections: {raw_dets_count} raw (baseline unfiltered)")
-            else:
-                print(f"     └─ Detections: {raw_dets_count} raw ➔ {sent_dets_count} validated/prioritized")
-            if "dominant_risk" in metrics:
-                print(f"     └─ Dominant Risk: '{metrics['dominant_risk'].upper()}'")
-            print(f"     └─ TTFT (Client): {metrics.get('ttft_ms')} ms")
-            print(f"     └─ E2E Latency: {metrics.get('end_to_end_latency_ms')} ms")
-            print(f"     └─ Generated Warning: \"{warning_text}\"")
+            for f_idx, raw_frame in enumerate(frames, start=1):
+                print(f"\n  [Frame {f_idx}/{len(frames)}] Processing...")
 
-        results_data["scenarios"].append(scenario_log)
+                if run_baseline:
+                    pipeline_time_ms = 0.0
+                    payload_to_slm = raw_frame
+                else:
+                    t_pipeline_start = time.perf_counter()
+                    prioritized_payload = pipeline.process(raw_frame)
+                    pipeline_time_ms = (time.perf_counter() - t_pipeline_start) * 1000
+                    payload_to_slm = prioritized_payload
+
+                # SLM processing and metric measurement
+                raw_dets_count = len(raw_frame.get("detections", []))
+                sent_dets_count = len(payload_to_slm.get("detections", []))
+
+                warning_text = ""
+                metrics = {}
+
+                try:
+                    warning_text, metrics = processor.process_with_metrics(payload_to_slm, tts=tts_engine)
+                    metrics["pipeline_processing_time_ms"] = round(pipeline_time_ms, 1)
+                    metrics["end_to_end_latency_ms"] = round(metrics["latency_ms"] + pipeline_time_ms, 1)
+                    flat_frames_metrics.append(metrics)
+                except Exception as e:
+                    print(f"  ❌ Error during SLM inference: {e}")
+                    warning_text = f"[INFERENCE ERROR: {e}]"
+                    metrics = {
+                        "ttft_ms": 0.0,
+                        "ttfa_ms": 0.0,
+                        "latency_ms": 0.0,
+                        "pipeline_processing_time_ms": round(pipeline_time_ms, 1),
+                        "end_to_end_latency_ms": 0.0,
+                        "error": str(e)
+                    }
+
+                # log frame data
+                frame_log = {
+                    "frame_index": f_idx,
+                    "raw_input": raw_frame,
+                    "prioritized_payload": payload_to_slm,
+                    "warning_text": warning_text,
+                    "metrics": metrics
+                }
+                scenario_log["frames"].append(frame_log)
+
+                # displays frame summary in the terminal
+                if run_baseline:
+                    print(f"     └─ Detections: {raw_dets_count} raw (baseline unfiltered)")
+                else:
+                    print(f"     └─ Detections: {raw_dets_count} raw ➔ {sent_dets_count} validated/prioritized")
+                if "dominant_risk" in metrics:
+                    print(f"     └─ Dominant Risk: '{metrics['dominant_risk'].upper()}'")
+                print(f"     └─ TTFT (Client): {metrics.get('ttft_ms')} ms")
+                if use_tts:
+                    print(f"     └─ TTFA (Audio):  {metrics.get('ttfa_ms')} ms")
+                print(f"     └─ E2E Latency:  {metrics.get('end_to_end_latency_ms')} ms")
+                print(f"     └─ Generated Warning: \"{warning_text}\"")
+
+            results_data["scenarios"].append(scenario_log)
+    finally:
+        if tts_engine is not None:
+            tts_engine.shutdown()
 
     # test metrics calculation
     successful_frames = [f for f in flat_frames_metrics if "error" not in f]
     if successful_frames:
         avg_ttft = sum(f["ttft_ms"] for f in successful_frames) / len(successful_frames)
+        avg_ttfa = sum(f.get("ttfa_ms", 0.0) for f in successful_frames) / len(successful_frames) if use_tts else 0.0
         avg_latency = sum(f["end_to_end_latency_ms"] for f in successful_frames) / len(successful_frames)
         total_tokens = sum(f["response_tokens"] for f in successful_frames)
     else:
         avg_ttft = 0.0
+        avg_ttfa = 0.0
         avg_latency = 0.0
         total_tokens = 0
 
     results_data["test_summary"] = {
         "total_scenarios": len(scenarios_definition),
         "total_frames": len(flat_frames_metrics),
+        "use_tts": use_tts,
         "avg_ttft_ms": round(avg_ttft, 1),
+        "avg_ttfa_ms": round(avg_ttfa, 1) if use_tts else None,
         "avg_end_to_end_latency_ms": round(avg_latency, 1),
         "total_tokens_generated": total_tokens,
         "successful_inferences": len(successful_frames),
@@ -198,7 +235,8 @@ def main():
     timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
     sanitized_model = sanitize_filename(ollama_model)
     baseline_suffix = "_baseline" if run_baseline else ""
-    filename = f"results_{sanitized_model}{baseline_suffix}_{timestamp_str}.json"
+    tts_suffix = "_tts" if use_tts else ""
+    filename = f"results_{sanitized_model}{baseline_suffix}{tts_suffix}_{timestamp_str}.json"
     filepath = os.path.join(results_dir, filename)
 
     with open(filepath, "w", encoding="utf-8") as f:
@@ -211,14 +249,20 @@ def main():
     print(f"Log File: {filepath}")
     print(f"Mode:     {mode_label}")
     print(f"Model:    {ollama_model}")
+    print(f"TTS:      {'ENABLED' if use_tts else 'DISABLED'}")
     print(f"Average TTFT (Time-to-First-Token): {results_data['test_summary']['avg_ttft_ms']} ms")
+    if use_tts:
+        print(f"Average TTFA (Time-to-First-Audio): {results_data['test_summary']['avg_ttfa_ms']} ms")
     print(f"Average End-to-End Latency:      {results_data['test_summary']['avg_end_to_end_latency_ms']} ms")
     print(f"Total Generated Tokens:          {results_data['test_summary']['total_tokens_generated']}")
     print(f"Successful / Total Inferences:   {results_data['test_summary']['successful_inferences']} / {results_data['test_summary']['total_frames']}")
     print("-" * 80)
 
     det_col_header = "Raw (Base)" if run_baseline else "Raw ➔ Val"
-    print(f"{'Scenario':<10} | {'Frame':<5} | {det_col_header:<12} | {'Risk':<8} | {'TTFT (ms)':<10} | {'E2E Lat (ms)':<12}")
+    if use_tts:
+        print(f"{'Scenario':<10} | {'Frame':<5} | {det_col_header:<12} | {'Risk':<8} | {'TTFT (ms)':<10} | {'TTFA (ms)':<10} | {'E2E Lat (ms)':<12}")
+    else:
+        print(f"{'Scenario':<10} | {'Frame':<5} | {det_col_header:<12} | {'Risk':<8} | {'TTFT (ms)':<10} | {'E2E Lat (ms)':<12}")
     print("-" * 80)
     for sc in results_data["scenarios"]:
         sc_num = sc["scenario_index"]
@@ -230,8 +274,12 @@ def main():
             m = fr["metrics"]
             risk = m.get("dominant_risk", "N/A")
             ttft = m.get("ttft_ms", 0.0)
+            ttfa = m.get("ttfa_ms", 0.0)
             e2e = m.get("end_to_end_latency_ms", 0.0)
-            print(f"Scenario {sc_num:<2} | {f_num:<5} | {det_str:<12} | {risk:<8} | {ttft:<10.1f} | {e2e:<12.1f}")
+            if use_tts:
+                print(f"Scenario {sc_num:<2} | {f_num:<5} | {det_str:<12} | {risk:<8} | {ttft:<10.1f} | {ttfa:<10.1f} | {e2e:<12.1f}")
+            else:
+                print(f"Scenario {sc_num:<2} | {f_num:<5} | {det_str:<12} | {risk:<8} | {ttft:<10.1f} | {e2e:<12.1f}")
 
     print("=" * 80 + "\n")
 
