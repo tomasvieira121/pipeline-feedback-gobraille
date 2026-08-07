@@ -8,6 +8,7 @@ from datetime import datetime
 from input_simulation import loadScenarios
 from validation_prioritization import ValidationPrioritizationPipeline
 from slm_processing import SLMProcessor
+from response_evaluation import calculate_bertscore
 
 
 # env with slm config
@@ -228,6 +229,45 @@ def main():
         "failed_inferences": len(flat_frames_metrics) - len(successful_frames)
     }
 
+    # evaluate BERTScore
+    print("\nRunning BERTScore evaluation...")
+    predictions = []
+    references = []
+    eval_pairs_info = [] # keep track of which scenario this corresponds to
+    
+    for sc in results_data["scenarios"]:
+        gt = sc.get("ground_truth", {})
+        ideal_warning = gt.get("ideal_warning_frame_3")
+        # Ensure scenario has at least 3 frames for frame 3 evaluation
+        if ideal_warning and len(sc["frames"]) >= 3:
+            frame_3 = sc["frames"][2] # frame_index 3
+            warning_text = frame_3.get("warning_text", "")
+            if warning_text and not warning_text.startswith("[INFERENCE ERROR"):
+                predictions.append(warning_text)
+                references.append(ideal_warning)
+                eval_pairs_info.append(sc["scenario_index"])
+
+    bert_scores = {}
+    if predictions and references:
+        try:
+            bert_scores = calculate_bertscore(predictions, references, lang="en")
+            results_data["test_summary"]["bertscore"] = {
+                "avg_precision": round(bert_scores.get("avg_precision", 0.0), 4),
+                "avg_recall": round(bert_scores.get("avg_recall", 0.0), 4),
+                "avg_f1": round(bert_scores.get("avg_f1", 0.0), 4)
+            }
+            # Add specific scores to the scenario
+            for i, sc_idx in enumerate(eval_pairs_info):
+                for sc in results_data["scenarios"]:
+                    if sc["scenario_index"] == sc_idx:
+                        sc["frames"][2]["metrics"]["bertscore"] = {
+                            "precision": round(bert_scores["precision"][i], 4),
+                            "recall": round(bert_scores["recall"][i], 4),
+                            "f1": round(bert_scores["f1"][i], 4)
+                        }
+        except Exception as e:
+            print(f"Failed to calculate BERTScore: {e}")
+
     # output results file
     results_dir = "./results"
     os.makedirs(results_dir, exist_ok=True)
@@ -236,26 +276,44 @@ def main():
     sanitized_model = sanitize_filename(ollama_model)
     baseline_suffix = "_baseline" if run_baseline else ""
     tts_suffix = "_tts" if use_tts else ""
-    filename = f"results_{sanitized_model}{baseline_suffix}{tts_suffix}_{timestamp_str}.json"
-    filepath = os.path.join(results_dir, filename)
+    base_suffix = f"{sanitized_model}{baseline_suffix}{tts_suffix}.json"
+    
+    results_filename = f"{timestamp_str}_results_{base_suffix}"
+    metrics_filename = f"{timestamp_str}_test_metrics_{base_suffix}"
+    
+    results_filepath = os.path.join(results_dir, results_filename)
+    metrics_filepath = os.path.join(results_dir, metrics_filename)
 
-    with open(filepath, "w", encoding="utf-8") as f:
+    with open(results_filepath, "w", encoding="utf-8") as f:
         json.dump(results_data, f, indent=2, ensure_ascii=False)
+
+    # Save test metrics separately
+    test_metrics_data = {
+        "test_metadata": results_data["test_metadata"],
+        "test_summary": results_data["test_summary"]
+    }
+    with open(metrics_filepath, "w", encoding="utf-8") as f:
+        json.dump(test_metrics_data, f, indent=2, ensure_ascii=False)
 
     # final terminal output
     print("\n" + "=" * 80)
     print(" TEST EXECUTION REPORT ")
     print("=" * 80)
-    print(f"Log File: {filepath}")
-    print(f"Mode:     {mode_label}")
-    print(f"Model:    {ollama_model}")
-    print(f"TTS:      {'ENABLED' if use_tts else 'DISABLED'}")
+    print(f"Results Log: {results_filepath}")
+    print(f"Metrics Log: {metrics_filepath}")
+    print(f"Mode:        {mode_label}")
+    print(f"Model:       {ollama_model}")
+    print(f"TTS:         {'ENABLED' if use_tts else 'DISABLED'}")
     print(f"Average TTFT (Time-to-First-Token): {results_data['test_summary']['avg_ttft_ms']} ms")
     if use_tts:
         print(f"Average TTFA (Time-to-First-Audio): {results_data['test_summary']['avg_ttfa_ms']} ms")
     print(f"Average End-to-End Latency:      {results_data['test_summary']['avg_end_to_end_latency_ms']} ms")
     print(f"Total Generated Tokens:          {results_data['test_summary']['total_tokens_generated']}")
     print(f"Successful / Total Inferences:   {results_data['test_summary']['successful_inferences']} / {results_data['test_summary']['total_frames']}")
+    
+    if "bertscore" in results_data["test_summary"]:
+        print(f"BERTScore Avg F1:                {results_data['test_summary']['bertscore']['avg_f1']}")
+        
     print("-" * 80)
 
     det_col_header = "Raw (Base)" if run_baseline else "Raw ➔ Val"

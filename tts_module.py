@@ -116,12 +116,12 @@ class PiperStreamingTTS:
         kwargs = {"length_scale": speed_scale}
         if hasattr(self.voice, "synthesize_stream_raw"):
             try:
-                return self.voice.synthesize_stream_raw(text, **kwargs)
+                return self.voice.synthesize_stream_raw(text, **kwargs)  # type: ignore
             except TypeError:
                 return self.voice.synthesize_stream_raw(text)
         elif hasattr(self.voice, "synthesize"):
             try:
-                return self.voice.synthesize(text, **kwargs)
+                return self.voice.synthesize(text, **kwargs)  # type: ignore
             except TypeError:
                 return self.voice.synthesize(text)
         raise AttributeError("PiperVoice instance does not support recognized synthesis methods.")
