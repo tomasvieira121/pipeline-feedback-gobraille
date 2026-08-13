@@ -167,7 +167,13 @@ class PiperStreamingTTS:
                             logger.error("Error in on_first_audio callback: %s", cb_err)
                         first_chunk = False
 
-                    if isinstance(audio_bytes, bytes):
+                    if hasattr(audio_bytes, "audio_int16_array"):
+                        audio_data = audio_bytes.audio_int16_array
+                    elif hasattr(audio_bytes, "audio_int16_bytes"):
+                        audio_data = np.frombuffer(audio_bytes.audio_int16_bytes, dtype=np.int16)
+                    elif hasattr(audio_bytes, "audio_bytes"):
+                        audio_data = np.frombuffer(audio_bytes.audio_bytes, dtype=np.int16)
+                    elif isinstance(audio_bytes, bytes):
                         audio_data = np.frombuffer(audio_bytes, dtype=np.int16)
                     elif isinstance(audio_bytes, np.ndarray):
                         audio_data = audio_bytes
