@@ -52,6 +52,7 @@ class PiperStreamingTTS:
         
         # audio output parameters from voice config
         self.sample_rate = self.voice.config.sample_rate
+        self.current_frame_samples = 0
         
         # worker threads for parallel synthesis and audio playback
         self.synthesis_thread = threading.Thread(target=self._synthesis_worker, daemon=True)
@@ -59,6 +60,16 @@ class PiperStreamingTTS:
         
         self.synthesis_thread.start()
         self.playback_thread.start()
+
+    def reset_audio_duration(self) -> None:
+        """Reinicia o contador para o próximo frame/aviso."""
+        self.current_frame_samples = 0
+
+    def get_last_audio_duration(self) -> float:
+        """Retorna a duração total do áudio em segundos."""
+        if self.sample_rate and self.sample_rate > 0:
+            return round(self.current_frame_samples / float(self.sample_rate), 2)
+        return 0.0
 
     # clears pending text and audio queues
     def clear_queue(self) -> None:
@@ -179,6 +190,7 @@ class PiperStreamingTTS:
                         audio_data = audio_bytes
                     else:
                         audio_data = np.frombuffer(bytes(audio_bytes), dtype=np.int16)
+                    self.current_frame_samples += len(audio_data)
                     self.audio_queue.put(audio_data)
 
                 self.text_queue.task_done()

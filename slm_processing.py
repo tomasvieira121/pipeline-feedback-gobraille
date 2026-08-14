@@ -225,6 +225,7 @@ class OllamaClient:
 
         t_first_token = None
         t_first_audio = None
+        t_slm_done = None
         generated_text = ""
         final_data = {}
 
@@ -259,6 +260,10 @@ class OllamaClient:
 
                 if chunk.get("done", False):
                     final_data = chunk
+                    t_slm_done = time.perf_counter()
+
+        if t_slm_done is None:
+            t_slm_done = time.perf_counter()
 
         # send remaining buffer content to TTS if any
         if tts is not None and buffer.strip():
@@ -266,14 +271,18 @@ class OllamaClient:
 
         # wait for TTS synthesis of current warning to finish before finalizing metrics
         if tts is not None:
-            tts.wait_until_done(timeout=3.0)
+            tts.wait_until_done(timeout=4.0)
 
         t_end = time.perf_counter()
 
         # time calculations (in milliseconds)
-        ttft_ms = (t_first_token - t_start) * 1000 if t_first_token else (t_end - t_start) * 1000
+        ttft_ms = (t_first_token - t_start) * 1000 if t_first_token else (t_slm_done - t_start) * 1000
         ttfa_ms = (t_first_audio - t_start) * 1000 if t_first_audio else 0.0
-        latency_ms = (t_end - t_start) * 1000
+        slm_latency_ms = (t_slm_done - t_start) * 1000
+        tts_latency_ms = (t_end - t_slm_done) * 1000 if tts is not None else 0.0
+        total_latency_ms = (t_end - t_start) * 1000
+
+        audio_duration_s = tts.get_last_audio_duration() if tts is not None else 0.0
 
         # convert Ollama durations (nanoseconds -> milliseconds)
         prompt_eval_duration_ms = final_data.get("prompt_eval_duration", 0) / 1_000_000.0
@@ -283,7 +292,10 @@ class OllamaClient:
         metrics = {
             "ttft_ms": round(ttft_ms, 1),
             "ttfa_ms": round(ttfa_ms, 1),
-            "latency_ms": round(latency_ms, 1),
+            "slm_latency_ms": round(slm_latency_ms, 1),
+            "tts_latency_ms": round(tts_latency_ms, 1),
+            "audio_duration_s": round(audio_duration_s, 2),
+            "latency_ms": round(total_latency_ms, 1),
             "prompt_tokens": final_data.get("prompt_eval_count", 0),
             "response_tokens": final_data.get("eval_count", 0),
             "ollama_prompt_eval_duration_ms": round(prompt_eval_duration_ms, 1),
@@ -292,10 +304,13 @@ class OllamaClient:
         }
 
         logger.info(
-            "Streaming inference completed: TTFT=%.1f ms | TTFA=%.1f ms | Latency=%.1f ms | Tokens=%d | model: %s",
+            "Streaming inference completed: TTFT=%.1f ms | TTFA=%.1f ms | SLM=%.1f ms | TTS=%.1f ms | Audio=%.2fs | Total Latency=%.1f ms | Tokens=%d | model: %s",
             ttft_ms,
             ttfa_ms,
-            latency_ms,
+            slm_latency_ms,
+            tts_latency_ms,
+            audio_duration_s,
+            total_latency_ms,
             metrics["response_tokens"],
             self.model,
         )

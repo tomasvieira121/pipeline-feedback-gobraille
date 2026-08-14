@@ -143,6 +143,9 @@ def main():
             for f_idx, raw_frame in enumerate(frames, start=1):
                 print(f"\n  [Frame {f_idx}/{len(frames)}] Processing...")
 
+                if tts_engine is not None:
+                    tts_engine.reset_audio_duration()
+
                 if run_baseline:
                     pipeline_time_ms = 0.0
                     payload_to_slm = raw_frame
@@ -170,6 +173,9 @@ def main():
                     metrics = {
                         "ttft_ms": 0.0,
                         "ttfa_ms": 0.0,
+                        "slm_latency_ms": 0.0,
+                        "tts_latency_ms": 0.0,
+                        "audio_duration_s": 0.0,
                         "latency_ms": 0.0,
                         "pipeline_processing_time_ms": round(pipeline_time_ms, 1),
                         "end_to_end_latency_ms": 0.0,
@@ -196,6 +202,9 @@ def main():
                 print(f"     └─ TTFT (Client): {metrics.get('ttft_ms')} ms")
                 if use_tts:
                     print(f"     └─ TTFA (Audio):  {metrics.get('ttfa_ms')} ms")
+                    print(f"     └─ SLM Latency:   {metrics.get('slm_latency_ms')} ms")
+                    print(f"     └─ TTS Latency:   {metrics.get('tts_latency_ms')} ms")
+                    print(f"     └─ Audio Duration:{metrics.get('audio_duration_s')} s")
                 print(f"     └─ E2E Latency:  {metrics.get('end_to_end_latency_ms')} ms")
                 print(f"     └─ Generated Warning: \"{warning_text}\"")
 
@@ -209,12 +218,13 @@ def main():
     if successful_frames:
         avg_ttft = sum(f["ttft_ms"] for f in successful_frames) / len(successful_frames)
         avg_ttfa = sum(f.get("ttfa_ms", 0.0) for f in successful_frames) / len(successful_frames) if use_tts else 0.0
+        avg_slm_lat = sum(f.get("slm_latency_ms", f["latency_ms"]) for f in successful_frames) / len(successful_frames)
+        avg_tts_lat = sum(f.get("tts_latency_ms", 0.0) for f in successful_frames) / len(successful_frames) if use_tts else 0.0
+        avg_audio_dur = sum(f.get("audio_duration_s", 0.0) for f in successful_frames) / len(successful_frames) if use_tts else 0.0
         avg_latency = sum(f["end_to_end_latency_ms"] for f in successful_frames) / len(successful_frames)
         total_tokens = sum(f["response_tokens"] for f in successful_frames)
     else:
-        avg_ttft = 0.0
-        avg_ttfa = 0.0
-        avg_latency = 0.0
+        avg_ttft = avg_ttfa = avg_slm_lat = avg_tts_lat = avg_audio_dur = avg_latency = 0.0
         total_tokens = 0
 
     results_data["test_summary"] = {
@@ -223,6 +233,9 @@ def main():
         "use_tts": use_tts,
         "avg_ttft_ms": round(avg_ttft, 1),
         "avg_ttfa_ms": round(avg_ttfa, 1) if use_tts else None,
+        "avg_slm_latency_ms": round(avg_slm_lat, 1),
+        "avg_tts_latency_ms": round(avg_tts_lat, 1) if use_tts else 0.0,
+        "avg_audio_duration_s": round(avg_audio_dur, 2) if use_tts else 0.0,
         "avg_end_to_end_latency_ms": round(avg_latency, 1),
         "total_tokens_generated": total_tokens,
         "successful_inferences": len(successful_frames),
@@ -304,24 +317,27 @@ def main():
     print(f"Mode:        {mode_label}")
     print(f"Model:       {ollama_model}")
     print(f"TTS:         {'ENABLED' if use_tts else 'DISABLED'}")
-    print(f"Average TTFT (Time-to-First-Token): {results_data['test_summary']['avg_ttft_ms']} ms")
+    print(f"Average TTFT (Time-to-First-Token):  {results_data['test_summary']['avg_ttft_ms']} ms")
     if use_tts:
-        print(f"Average TTFA (Time-to-First-Audio): {results_data['test_summary']['avg_ttfa_ms']} ms")
-    print(f"Average End-to-End Latency:      {results_data['test_summary']['avg_end_to_end_latency_ms']} ms")
-    print(f"Total Generated Tokens:          {results_data['test_summary']['total_tokens_generated']}")
-    print(f"Successful / Total Inferences:   {results_data['test_summary']['successful_inferences']} / {results_data['test_summary']['total_frames']}")
+        print(f"Average TTFA (Time-to-First-Audio):  {results_data['test_summary']['avg_ttfa_ms']} ms")
+        print(f"Average SLM Latency:                {results_data['test_summary']['avg_slm_latency_ms']} ms")
+        print(f"Average TTS Latency:                {results_data['test_summary']['avg_tts_latency_ms']} ms")
+        print(f"Average Audio Duration:             {results_data['test_summary']['avg_audio_duration_s']} s")
+    print(f"Average End-to-End Latency:         {results_data['test_summary']['avg_end_to_end_latency_ms']} ms")
+    print(f"Total Generated Tokens:             {results_data['test_summary']['total_tokens_generated']}")
+    print(f"Successful / Total Inferences:      {results_data['test_summary']['successful_inferences']} / {results_data['test_summary']['total_frames']}")
     
     if "bertscore" in results_data["test_summary"]:
-        print(f"BERTScore Avg F1:                {results_data['test_summary']['bertscore']['avg_f1']}")
+        print(f"BERTScore Avg F1:                   {results_data['test_summary']['bertscore']['avg_f1']}")
         
     print("-" * 80)
 
     det_col_header = "Raw (Base)" if run_baseline else "Raw ➔ Val"
     if use_tts:
-        print(f"{'Scenario':<10} | {'Frame':<5} | {det_col_header:<12} | {'Risk':<8} | {'TTFT (ms)':<10} | {'TTFA (ms)':<10} | {'E2E Lat (ms)':<12}")
+        print(f"{'Scenario':<10} | {'Frame':<5} | {det_col_header:<12} | {'Risk':<8} | {'TTFT (ms)':<10} | {'TTFA (ms)':<10} | {'SLM (ms)':<9} | {'TTS (ms)':<9} | {'Dur (s)':<8} | {'E2E Lat (ms)':<12}")
     else:
-        print(f"{'Scenario':<10} | {'Frame':<5} | {det_col_header:<12} | {'Risk':<8} | {'TTFT (ms)':<10} | {'E2E Lat (ms)':<12}")
-    print("-" * 80)
+        print(f"{'Scenario':<10} | {'Frame':<5} | {det_col_header:<12} | {'Risk':<8} | {'TTFT (ms)':<10} | {'SLM (ms)':<9} | {'E2E Lat (ms)':<12}")
+    print("-" * (105 if use_tts else 80))
     for sc in results_data["scenarios"]:
         sc_num = sc["scenario_index"]
         for fr in sc["frames"]:
@@ -333,11 +349,14 @@ def main():
             risk = m.get("dominant_risk", "N/A")
             ttft = m.get("ttft_ms", 0.0)
             ttfa = m.get("ttfa_ms", 0.0)
+            slm_lat = m.get("slm_latency_ms", m.get("latency_ms", 0.0))
+            tts_lat = m.get("tts_latency_ms", 0.0)
+            dur = m.get("audio_duration_s", 0.0)
             e2e = m.get("end_to_end_latency_ms", 0.0)
             if use_tts:
-                print(f"Scenario {sc_num:<2} | {f_num:<5} | {det_str:<12} | {risk:<8} | {ttft:<10.1f} | {ttfa:<10.1f} | {e2e:<12.1f}")
+                print(f"Scenario {sc_num:<2} | {f_num:<5} | {det_str:<12} | {risk:<8} | {ttft:<10.1f} | {ttfa:<10.1f} | {slm_lat:<9.1f} | {tts_lat:<9.1f} | {dur:<8.2f} | {e2e:<12.1f}")
             else:
-                print(f"Scenario {sc_num:<2} | {f_num:<5} | {det_str:<12} | {risk:<8} | {ttft:<10.1f} | {e2e:<12.1f}")
+                print(f"Scenario {sc_num:<2} | {f_num:<5} | {det_str:<12} | {risk:<8} | {ttft:<10.1f} | {slm_lat:<9.1f} | {e2e:<12.1f}")
 
     print("=" * 80 + "\n")
 
