@@ -4,19 +4,8 @@ from bert_score import score
 # Suppress verbose transformers logging
 logging.getLogger("transformers").setLevel(logging.ERROR)
 
+# calculates bertscore for predictions against references
 def calculate_bertscore(predictions, references, lang="en"):
-    """
-    Calculates BERTScore for a list of predictions against references.
-    
-    Args:
-        predictions (list of str): The generated responses.
-        references (list of str): The ground truth responses.
-        lang (str): Language for the model.
-        
-    Returns:
-        dict: A dictionary containing precision, recall, f1 for each pair, 
-              as well as the average across all pairs.
-    """
     if not predictions or not references:
         return {}
     

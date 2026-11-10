@@ -319,9 +319,18 @@ class ValidationPrioritizationPipeline:
 
 
 if __name__ == "__main__":
-    from input_simulation import loadScenarios
+    import os
+    import sys
 
-    scenarios = loadScenarios("scene_dataset.json")
+    # Add parent dir to sys.path to allow running directly from modules folder
+    parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    if parent_dir not in sys.path:
+        sys.path.insert(0, parent_dir)
+
+    from run_simulations import loadScenarios
+
+    dataset_path = os.path.join(parent_dir, "scene_dataset.json")
+    scenarios = loadScenarios(dataset_path if os.path.exists(dataset_path) else "scene_dataset.json")
     pipeline = ValidationPrioritizationPipeline()
 
     for sc in scenarios:

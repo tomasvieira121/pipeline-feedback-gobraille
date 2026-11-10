@@ -61,12 +61,12 @@ class PiperStreamingTTS:
         self.synthesis_thread.start()
         self.playback_thread.start()
 
+    # resets audio duration counter
     def reset_audio_duration(self) -> None:
-        """Reinicia o contador para o próximo frame/aviso."""
         self.current_frame_samples = 0
 
+    # returns total audio duration in seconds
     def get_last_audio_duration(self) -> float:
-        """Retorna a duração total do áudio em segundos."""
         if self.sample_rate and self.sample_rate > 0:
             return round(self.current_frame_samples / float(self.sample_rate), 2)
         return 0.0
