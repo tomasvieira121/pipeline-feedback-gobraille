@@ -85,6 +85,7 @@ def main():
             use_tts=use_tts,
             confidence_threshold=0.60,
             min_persistence_frames=2,
+            max_missed_frames=3,
             top_n=3,
         )
     except Exception as e:
@@ -102,6 +103,7 @@ def main():
             "execution_mode": "baseline" if run_baseline else "pipeline",
             "confidence_threshold": 0.60,
             "min_persistence_frames": 2,
+            "max_missed_frames": 3,
             "top_n_detections": 3,
         },
         "scenarios": [],

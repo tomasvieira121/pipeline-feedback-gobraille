@@ -19,6 +19,9 @@ CONFIDENCE_THRESHOLD: float = 0.60
 # number of detections kept after prioritization
 TOP_N_DETECTIONS: int = 3
 
+# maximum consecutive frames an object can be missing before being evicted (tolerance to occlusions)
+MAX_MISSED_FRAMES: int = 3
+
 # objects beyond these distances are ignored
 MAX_DISTANCE_STATIC: float = 10.0   # meters — static objects
 MAX_DISTANCE_DYNAMIC: float = 20.0  # meters — dynamic objects
@@ -91,29 +94,47 @@ class DetectionValidator:
         max_distance_static: float = MAX_DISTANCE_STATIC,
         max_distance_dynamic: float = MAX_DISTANCE_DYNAMIC,
         min_persistence_frames: int = 2,
+        max_missed_frames: int = MAX_MISSED_FRAMES,
     ) -> None:
         self.confidence_threshold = confidence_threshold
         self.max_distance_static = max_distance_static
         self.max_distance_dynamic = max_distance_dynamic
         self.min_persistence_frames = min_persistence_frames
+        self.max_missed_frames = max_missed_frames
         self.track_history: dict[int, int] = {}
+        self.missed_frames: dict[int, int] = {}
 
-    # clears track history between scenarios
+    # clears tracking history and missed frames between scenarios
     def reset(self) -> None:
         self.track_history.clear()
-        logger.info("Tracking history reset.")
+        self.missed_frames.clear()
+        logger.info("Tracking history and missed frames reset.")
 
     def validate(self, payload: dict) -> list[dict]:
 
         raw_detections: list[dict] = payload.get("detections", [])
         valid: list[dict] = []
 
-        # first, increment history for all track_ids present in this frame
-        # so we can check their persistence
-        for det in raw_detections:
-            track_id = det.get("track_id")
-            if track_id is not None:
-                self.track_history[track_id] = self.track_history.get(track_id, 0) + 1
+        # track IDs present in current frame
+        current_ids = {
+            det.get("track_id")
+            for det in raw_detections
+            if det.get("track_id") is not None
+        }
+
+        # increment history and reset absence counter for present objects
+        for tid in current_ids:
+            self.track_history[tid] = self.track_history.get(tid, 0) + 1
+            self.missed_frames[tid] = 0
+
+        # increment absence counter for missing objects and evict if TTL exceeded
+        for tid in list(self.track_history.keys()):
+            if tid not in current_ids:
+                self.missed_frames[tid] = self.missed_frames.get(tid, 0) + 1
+                if self.missed_frames[tid] > self.max_missed_frames:
+                    self.track_history.pop(tid, None)
+                    self.missed_frames.pop(tid, None)
+                    logger.debug("Track ID %s expired (missed > %d frames).", tid, self.max_missed_frames)
 
         for det in raw_detections:
             track_id = det.get("track_id")
@@ -273,12 +294,14 @@ class ValidationPrioritizationPipeline:
         max_distance_static: float = MAX_DISTANCE_STATIC,
         max_distance_dynamic: float = MAX_DISTANCE_DYNAMIC,
         min_persistence_frames: int = 2,
+        max_missed_frames: int = MAX_MISSED_FRAMES,
     ) -> None:
         self.validator = DetectionValidator(
             confidence_threshold=confidence_threshold,
             max_distance_static=max_distance_static,
             max_distance_dynamic=max_distance_dynamic,
             min_persistence_frames=min_persistence_frames,
+            max_missed_frames=max_missed_frames,
         )
         self.prioritizer = DetectionPrioritizer(
             top_n=top_n,

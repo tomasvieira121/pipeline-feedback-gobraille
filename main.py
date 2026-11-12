@@ -54,6 +54,7 @@ class FeedbackPipeline:
         use_tts: bool = False,
         confidence_threshold: float = 0.60,
         min_persistence_frames: int = 2,
+        max_missed_frames: int = 3,
         top_n: int = 3,
     ) -> None:
         load_env_file()
@@ -64,12 +65,14 @@ class FeedbackPipeline:
         self.use_tts = use_tts
         self.confidence_threshold = confidence_threshold
         self.min_persistence_frames = min_persistence_frames
+        self.max_missed_frames = max_missed_frames
         self.top_n = top_n
 
         # Initialize validation and prioritization 
         self.validation_pipeline = ValidationPrioritizationPipeline(
             confidence_threshold=self.confidence_threshold,
             min_persistence_frames=self.min_persistence_frames,
+            max_missed_frames=self.max_missed_frames,
             top_n=self.top_n,
         )
 
