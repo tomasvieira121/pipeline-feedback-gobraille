@@ -55,8 +55,8 @@ class PiperStreamingTTS:
         self.current_frame_samples = 0
         
         # worker threads for parallel synthesis and audio playback
-        self.synthesis_thread = threading.Thread(target=self._synthesis_worker, daemon=True)
-        self.playback_thread = threading.Thread(target=self._playback_worker, daemon=True)
+        self.synthesis_thread = threading.Thread(target=self.synthesis_worker, daemon=True)
+        self.playback_thread = threading.Thread(target=self.playback_worker, daemon=True)
         
         self.synthesis_thread.start()
         self.playback_thread.start()
@@ -123,7 +123,7 @@ class PiperStreamingTTS:
             time.sleep(0.02)
 
     # synthesizes text with automatic fallback if length_scale is not supported by piper version
-    def _synthesize_text(self, text: str, speed_scale: float):
+    def synthesize_text(self, text: str, speed_scale: float):
         kwargs = {"length_scale": speed_scale}
         if hasattr(self.voice, "synthesize_stream_raw"):
             try:
@@ -139,7 +139,7 @@ class PiperStreamingTTS:
 
 
     # background worker thread that synthesizes text chunks into PCM audio
-    def _synthesis_worker(self) -> None:
+    def synthesis_worker(self) -> None:
 
 
         while self.is_running:
@@ -162,7 +162,7 @@ class PiperStreamingTTS:
                 logger.debug("[Synthesize] Risk: %s | Speed: %.1f | Text: %s", risk, speed_scale, text)
                 
                 try:
-                    audio_stream = self._synthesize_text(text, speed_scale)
+                    audio_stream = self.synthesize_text(text, speed_scale)
                 except Exception as e:
                     logger.error("Audio synthesis error for text '%s': %s", text, e)
                     self.text_queue.task_done()
@@ -201,7 +201,7 @@ class PiperStreamingTTS:
 
 
     # background worker thread that plays audio on the sound device
-    def _playback_worker(self) -> None:
+    def playback_worker(self) -> None:
 
         stream = None
         try:

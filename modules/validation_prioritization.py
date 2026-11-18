@@ -40,7 +40,7 @@ RISK_LEVEL_WEIGHTS: dict[str, float] = {
 # utils
 
 # safe nested dict access with a default fallback
-def _get_nested(obj: dict, *keys: str, default: Any = None) -> Any:
+def get_nested_value(obj: dict, *keys: str, default: Any = None) -> Any:
     for key in keys:
         if not isinstance(obj, dict):
             return default
@@ -50,7 +50,7 @@ def _get_nested(obj: dict, *keys: str, default: Any = None) -> Any:
     return obj
 
 # calc ttc in seconds
-def _compute_ttc(distance: float, approach_delta: float | None) -> float | None:
+def compute_ttc(distance: float, approach_delta: float | None) -> float | None:
     if approach_delta is None or approach_delta <= 0.0:
         return None
     if distance <= 0.0:
@@ -58,7 +58,7 @@ def _compute_ttc(distance: float, approach_delta: float | None) -> float | None:
     return distance / approach_delta
 
 # convert ttc into urgency score
-def _ttc_score(ttc: float | None) -> float:
+def ttc_score(ttc: float | None) -> float:
     if ttc is None:
         return 0.0
     TTC_CRITICAL = 2.0
@@ -70,14 +70,14 @@ def _ttc_score(ttc: float | None) -> float:
     return (TTC_SAFE - ttc) / (TTC_SAFE - TTC_CRITICAL)
 
 # converts metric distance into proximity score
-def _distance_score(distance: float, max_dist: float) -> float:
+def distance_score(distance: float, max_dist: float) -> float:
     if distance <= 0.0:
         return 1.0
     score = 1.0 - (distance / max_dist)
     return max(0.0, min(1.0, score))
 
 # converts azimuth degrees into centrality score
-def _azimuth_score(azimuth_deg: float) -> float:
+def azimuth_score(azimuth_deg: float) -> float:
     abs_az = abs(azimuth_deg)
     if abs_az >= 90.0:
         return 0.0
@@ -138,10 +138,10 @@ class DetectionValidator:
 
         for det in raw_detections:
             track_id = det.get("track_id")
-            obj_class = _get_nested(det, "classification", "class", default="unknown")
-            confidence = _get_nested(det, "classification", "confidence", default=0.0)
-            category = _get_nested(det, "classification", "category", default="")
-            distance = _get_nested(det, "spatial_metrics", "estimated_distance", default=math.inf)
+            obj_class = get_nested_value(det, "classification", "class", default="unknown")
+            confidence = get_nested_value(det, "classification", "confidence", default=0.0)
+            category = get_nested_value(det, "classification", "category", default="")
+            distance = get_nested_value(det, "spatial_metrics", "estimated_distance", default=math.inf)
 
             # verify presence of track id
             if track_id is None:
@@ -213,21 +213,21 @@ class DetectionPrioritizer:
         self.max_distance_dynamic = max_distance_dynamic
 
     # computes a weighted composite score for a single detection
-    def _compute_score(self, det: dict) -> float:
-        category = _get_nested(det, "classification", "category", default="")
-        risk_label = _get_nested(det, "semantic_relations", "risk_level", default="low")
-        distance = _get_nested(det, "spatial_metrics", "estimated_distance", default=math.inf)
-        azimuth = _get_nested(det, "spatial_metrics", "azimuth_deg", default=90.0)
-        approach_delta = _get_nested(det, "movement", "approach_delta", default=None)
+    def compute_score(self, det: dict) -> float:
+        category = get_nested_value(det, "classification", "category", default="")
+        risk_label = get_nested_value(det, "semantic_relations", "risk_level", default="low")
+        distance = get_nested_value(det, "spatial_metrics", "estimated_distance", default=math.inf)
+        azimuth = get_nested_value(det, "spatial_metrics", "azimuth_deg", default=90.0)
+        approach_delta = get_nested_value(det, "movement", "approach_delta", default=None)
 
         is_dynamic = "dynamic" in category.lower()
         max_dist = self.max_distance_dynamic if is_dynamic else self.max_distance_static
 
         risk_w = RISK_LEVEL_WEIGHTS.get(risk_label, 0.0)
-        ttc = _compute_ttc(distance, approach_delta)
-        ttc_s = _ttc_score(ttc)
-        dist_s = _distance_score(distance, max_dist)
-        az_s = _azimuth_score(azimuth)
+        ttc = compute_ttc(distance, approach_delta)
+        ttc_s = ttc_score(ttc)
+        dist_s = distance_score(distance, max_dist)
+        az_s = azimuth_score(azimuth)
 
         score = (
             self.w_risk * risk_w
@@ -238,7 +238,7 @@ class DetectionPrioritizer:
 
         logger.debug(
             "Detection score '%s': risk=%.2f | ttc=%.2f (TTC=%s s) | dist=%.2f | az=%.2f → total=%.4f",
-            _get_nested(det, "classification", "class", default="?"),
+            get_nested_value(det, "classification", "class", default="?"),
             risk_w, ttc_s,
             f"{ttc:.1f}" if ttc is not None else "N/A",
             dist_s, az_s, score,
@@ -254,7 +254,7 @@ class DetectionPrioritizer:
 
         scored = []
         for det in valid_detections:
-            score = self._compute_score(det)
+            score = self.compute_score(det)
 
             enriched = dict(det)
             enriched["_priority_score"] = round(score, 4)
@@ -274,10 +274,10 @@ class DetectionPrioritizer:
             logger.info(
                 "  #%d → class='%s' | score=%.4f | risk='%s' | dist=%.1f m",
                 i,
-                _get_nested(d, "classification", "class", default="?"),
+                get_nested_value(d, "classification", "class", default="?"),
                 d["_priority_score"],
-                _get_nested(d, "semantic_relations", "risk_level", default="?"),
-                _get_nested(d, "spatial_metrics", "estimated_distance", default=-1.0),
+                get_nested_value(d, "semantic_relations", "risk_level", default="?"),
+                get_nested_value(d, "spatial_metrics", "estimated_distance", default=-1.0),
             )
 
         return top
@@ -362,3 +362,4 @@ if __name__ == "__main__":
         for frame in sc["frames"]:
             out = pipeline.process(frame)
             logger.info("Output detections: %d", len(out["detections"]))
+

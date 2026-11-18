@@ -125,7 +125,7 @@ class FeedbackPipeline:
         metrics: dict[str, Any] = {}
 
         try:
-            warning_text, metrics = self.processor.process_with_metrics(
+            warning_text, metrics = self.processor.process_stream(
                 payload_to_slm, tts=self.tts_engine
             )
             metrics["pipeline_processing_time_ms"] = round(pipeline_time_ms, 1)
