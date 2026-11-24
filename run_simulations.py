@@ -224,6 +224,23 @@ def main():
         "failed_inferences": len(flat_frames_metrics) - len(successful_frames),
     }
 
+    # Free Ollama model from RAM before loading PyTorch/BERTScore
+    import gc
+    import urllib.request
+
+    try:
+        host_url = (ollama_host or "http://localhost:11434").rstrip("/")
+        req = urllib.request.Request(
+            f"{host_url}/api/generate",
+            data=json.dumps({"model": ollama_model, "keep_alive": 0}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        urllib.request.urlopen(req, timeout=15).read()
+    except Exception as e:
+        print(f"Warning: could not unload Ollama model before BERTScore: {e}")
+    gc.collect()
+
     # evaluate BERTScore
     print("\nRunning BERTScore evaluation...")
     predictions = []
