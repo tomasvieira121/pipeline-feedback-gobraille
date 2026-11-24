@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import logging
 import os
@@ -106,6 +107,7 @@ class FeedbackPipeline:
         self.validation_pipeline.reset()
         if self.tts_engine is not None:
             self.tts_engine.reset_audio_duration()
+        gc.collect()
 
     # processes a single input frame through the pipeline
     def process_frame(self, raw_frame: dict[str, Any] | str | FrameInput) -> dict[str, Any]:

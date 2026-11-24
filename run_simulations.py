@@ -1,3 +1,4 @@
+import gc
 import json
 import logging
 import os
@@ -192,6 +193,7 @@ def main():
                 print(f"     └─ Generated Warning: \"{warning_text}\"")
 
             results_data["scenarios"].append(scenario_log)
+            gc.collect()
     finally:
         pipeline.shutdown()
 
