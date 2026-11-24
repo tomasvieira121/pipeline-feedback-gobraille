@@ -31,7 +31,7 @@ def load_env_file(filepath: str = ".env") -> None:
                 if line and not line.startswith("#") and "=" in line:
                     k, v = line.split("=", 1)
                     val = v.strip().strip("'").strip('"')
-                    os.environ[k.strip()] = val
+                    os.environ.setdefault(k.strip(), val)
         logger.info("Environment variables loaded from: %s", filepath)
     else:
         logger.debug(".env file not found at: %s", filepath)
@@ -89,7 +89,9 @@ class FeedbackPipeline:
         if self.use_tts:
             try:
                 from modules.tts_module import PiperStreamingTTS
-                self.tts_engine = PiperStreamingTTS()
+                model_file = os.getenv("TTS_MODEL_FILE")
+                config_file = os.getenv("TTS_CONFIG_FILE")
+                self.tts_engine = PiperStreamingTTS(model_path=model_file, config_path=config_file)
                 logger.info("PiperStreamingTTS initialized successfully.")
             except Exception as e:
                 logger.warning(

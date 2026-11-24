@@ -124,7 +124,7 @@ class OllamaClient:
         self,
         host: str = OLLAMA_HOST,
         model: str = OLLAMA_MODEL,
-        timeout: int = 30,
+        timeout: int = 300,
     ) -> None:
         if not host:
             raise ValueError(

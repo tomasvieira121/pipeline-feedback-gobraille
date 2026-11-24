@@ -32,11 +32,22 @@ class PiperStreamingTTS:
     # initializes the TTS voice model and starts background synthesis/playback threads
     def __init__(self, model_path: str | None = None, config_path: str | None = None) -> None:
 
-        model_path = model_path or TTS_MODEL_FILE
-        config_path = config_path or TTS_CONFIG_FILE
+        model_path = model_path or os.getenv("TTS_MODEL_FILE") or TTS_MODEL_FILE
+        config_path = config_path or os.getenv("TTS_CONFIG_FILE") or TTS_CONFIG_FILE
 
         if not model_path:
             raise ValueError("TTS_MODEL_FILE is not set in environment (.env) nor provided as argument.")
+
+        # Resolve relative paths against the project root if needed
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        if model_path and not os.path.isabs(model_path) and not os.path.exists(model_path):
+            candidate = os.path.normpath(os.path.join(base_dir, model_path))
+            if os.path.exists(candidate):
+                model_path = candidate
+        if config_path and not os.path.isabs(config_path) and not os.path.exists(config_path):
+            candidate = os.path.normpath(os.path.join(base_dir, config_path))
+            if os.path.exists(candidate):
+                config_path = candidate
 
         logger.info("Loading TTS model from: %s (config: %s)...", model_path, config_path)
         try:

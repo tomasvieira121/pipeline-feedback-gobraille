@@ -32,8 +32,31 @@ loadScenarios = load_scenarios
 def main():
     load_env_file()
 
-    ollama_host = os.getenv("OLLAMA_HOST")
-    ollama_model = os.getenv("OLLAMA_MODEL")
+    # model configuration from cli or environment
+    if "--model" in sys.argv:
+        try:
+            m_idx = sys.argv.index("--model")
+            if m_idx + 1 < len(sys.argv) and not sys.argv[m_idx + 1].startswith("--"):
+                ollama_model = sys.argv[m_idx + 1]
+            else:
+                ollama_model = os.getenv("OLLAMA_MODEL")
+        except (ValueError, IndexError):
+            ollama_model = os.getenv("OLLAMA_MODEL")
+    else:
+        ollama_model = os.getenv("OLLAMA_MODEL")
+
+    # host configuration from cli or environment
+    if "--host" in sys.argv:
+        try:
+            h_idx = sys.argv.index("--host")
+            if h_idx + 1 < len(sys.argv) and not sys.argv[h_idx + 1].startswith("--"):
+                ollama_host = sys.argv[h_idx + 1]
+            else:
+                ollama_host = os.getenv("OLLAMA_HOST")
+        except (ValueError, IndexError):
+            ollama_host = os.getenv("OLLAMA_HOST")
+    else:
+        ollama_host = os.getenv("OLLAMA_HOST")
 
     # baseline configuration from env or command line arguments
     env_baseline = os.getenv("RUN_BASELINE", "false").strip().lower() in ("true", "1", "yes")
