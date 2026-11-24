@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import sys
+import urllib.request
 from datetime import datetime
 
 from main import FeedbackPipeline, load_env_file, sanitize_filename
@@ -136,6 +137,21 @@ def main():
     # flat list for aggregate metric calculation at the end
     flat_frames_metrics = []
 
+    # Pre-load SLM model into Ollama RAM (warm-up) to eliminate cold-start disk I/O skew
+    print(f"Pre-loading model '{ollama_model}' into Ollama RAM (warm-up)...")
+    try:
+        host_url = (ollama_host or "http://localhost:11434").rstrip("/")
+        req = urllib.request.Request(
+            f"{host_url}/api/generate",
+            data=json.dumps({"model": ollama_model, "prompt": "warmup", "keep_alive": "30m"}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        urllib.request.urlopen(req, timeout=120).read()
+        print(f"Model '{ollama_model}' is warm in RAM. Starting benchmark.\n")
+    except Exception as e:
+        print(f"Notice: warm-up request failed or skipped: {e}. Proceeding with simulation.\n")
+
     try:
         # scenario execution
         for idx, sc_def in enumerate(scenarios_definition, start=1):
@@ -227,9 +243,6 @@ def main():
     }
 
     # Free Ollama model from RAM before loading PyTorch/BERTScore
-    import gc
-    import urllib.request
-
     try:
         host_url = (ollama_host or "http://localhost:11434").rstrip("/")
         req = urllib.request.Request(
