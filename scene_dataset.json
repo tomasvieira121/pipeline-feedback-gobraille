@@ -40,7 +40,8 @@
         "metadata": {"timestamp": 1700000100},
         "global_context": {"scene_type": "sidewalk", "surface": "tactile_paving"},
         "detections": [
-          {"track_id": 10, "classification": {"class": "pole", "confidence": 0.88, "category": "static"}, "spatial_metrics": {"estimated_distance": 6.0, "azimuth_deg": 2}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}
+          {"track_id": 10, "classification": {"class": "pole", "confidence": 0.88, "category": "static"}, "spatial_metrics": {"estimated_distance": 6.0, "azimuth_deg": 2}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}},
+          {"track_id": 89, "classification": {"class": "cone", "confidence": 0.52, "category": "static"}, "spatial_metrics": {"estimated_distance": 6.5, "azimuth_deg": 20}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}
         ]
       },
       {
@@ -48,8 +49,9 @@
         "global_context": {"scene_type": "sidewalk", "surface": "tactile_paving"},
         "detections": [
           {"track_id": 10, "classification": {"class": "pole", "confidence": 0.90, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.0, "azimuth_deg": 1}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}},
-          {"track_id": null, "classification": {"class": "dog", "confidence": 0.55, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 8.0, "azimuth_deg": -30}, "movement": {"approach_delta": -0.2}, "semantic_relations": {"risk_level": "low"}},
-          {"track_id": 88, "classification": {"class": "box", "confidence": 0.75, "category": "static"}, "spatial_metrics": {"estimated_distance": 4.0, "azimuth_deg": 25}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}
+          {"track_id": null, "classification": {"class": "dog", "confidence": 0.72, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 8.0, "azimuth_deg": -30}, "movement": {"approach_delta": -0.2}, "semantic_relations": {"risk_level": "low"}},
+          {"track_id": 88, "classification": {"class": "box", "confidence": 0.75, "category": "static"}, "spatial_metrics": {"estimated_distance": 4.0, "azimuth_deg": 25}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}},
+          {"track_id": 89, "classification": {"class": "cone", "confidence": 0.55, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.8, "azimuth_deg": 20}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}
         ]
       },
       {
@@ -76,7 +78,8 @@
         "global_context": {"scene_type": "park_path", "surface": "gravel"},
         "detections": [
           {"track_id": 20, "classification": {"class": "person", "confidence": 0.90, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 8.0, "azimuth_deg": -15}, "movement": {"approach_delta": -0.5}, "semantic_relations": {"risk_level": "low"}},
-          {"track_id": 21, "classification": {"class": "person", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 9.0, "azimuth_deg": 10}, "movement": {"approach_delta": -0.4}, "semantic_relations": {"risk_level": "low"}}
+          {"track_id": 21, "classification": {"class": "person", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 9.0, "azimuth_deg": 10}, "movement": {"approach_delta": -0.4}, "semantic_relations": {"risk_level": "low"}},
+          {"track_id": 23, "classification": {"class": "car", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 25.0, "azimuth_deg": -45}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}
         ]
       },
       {
@@ -85,14 +88,16 @@
         "detections": [
           {"track_id": 20, "classification": {"class": "person", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 9.0, "azimuth_deg": -18}, "movement": {"approach_delta": -0.6}, "semantic_relations": {"risk_level": "low"}},
           {"track_id": 21, "classification": {"class": "person", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 10.5, "azimuth_deg": 12}, "movement": {"approach_delta": -0.5}, "semantic_relations": {"risk_level": "low"}},
-          {"track_id": 22, "classification": {"class": "bicycle", "confidence": 0.75, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 15.0, "azimuth_deg": 25}, "movement": {"approach_delta": -0.8}, "semantic_relations": {"risk_level": "low"}}
+          {"track_id": 22, "classification": {"class": "bicycle", "confidence": 0.75, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 15.0, "azimuth_deg": 25}, "movement": {"approach_delta": -0.8}, "semantic_relations": {"risk_level": "low"}},
+          {"track_id": 23, "classification": {"class": "car", "confidence": 0.84, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 25.5, "azimuth_deg": -45}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}
         ]
       },
       {
         "metadata": {"timestamp": 1700000202},
         "global_context": {"scene_type": "park_path", "surface": "gravel"},
         "detections": [
-          {"track_id": 20, "classification": {"class": "person", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 10.2, "azimuth_deg": -20}, "movement": {"approach_delta": -0.7}, "semantic_relations": {"risk_level": "low"}}
+          {"track_id": 20, "classification": {"class": "person", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 10.2, "azimuth_deg": -20}, "movement": {"approach_delta": -0.7}, "semantic_relations": {"risk_level": "low"}},
+          {"track_id": 23, "classification": {"class": "car", "confidence": 0.83, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 26.0, "azimuth_deg": -45}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}
         ]
       }
     ]
@@ -174,7 +179,7 @@
     "description": "Variant of SCN002. User approaches an uncovered manhole. Focus: Ground hazard detection.",
     "ground_truth": {"ideal_warning_frame_3": "Danger! There is an open hole on the ground directly ahead. Stop walking.", "critical_objects": ["manhole"], "expected_dominant_risk_frame_3": "high"},
     "frames": [
-      {"metadata": {"timestamp": 1700000900}, "global_context": {"scene_type": "sidewalk"}, "detections": [{"track_id": 90, "classification": {"class": "manhole", "confidence": 0.65, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.5, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}]},
+      {"metadata": {"timestamp": 1700000900}, "global_context": {"scene_type": "sidewalk"}, "detections": [{"track_id": 90, "classification": {"class": "manhole", "confidence": 0.55, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.5, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}]},
       {"metadata": {"timestamp": 1700000901}, "global_context": {"scene_type": "sidewalk"}, "detections": [{"track_id": 90, "classification": {"class": "manhole", "confidence": 0.78, "category": "static"}, "spatial_metrics": {"estimated_distance": 3.5, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high"}}]},
       {"metadata": {"timestamp": 1700000902}, "global_context": {"scene_type": "sidewalk"}, "detections": [{"track_id": 90, "classification": {"class": "manhole", "confidence": 0.91, "category": "static"}, "spatial_metrics": {"estimated_distance": 1.5, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path"}}]}
     ]
@@ -185,9 +190,9 @@
     "description": "Variant of SCN002. User approaches a construction zone with fencing and cones.",
     "ground_truth": {"ideal_warning_frame_3": "Caution! Construction zone ahead. The path is blocked by a fence and a cone.", "critical_objects": ["fence", "cone"], "expected_dominant_risk_frame_3": "high"},
     "frames": [
-      {"metadata": {"timestamp": 1700001000}, "global_context": {"scene_type": "construction_zone"}, "detections": [{"track_id": 100, "classification": {"class": "fence", "confidence": 0.86, "category": "static"}, "spatial_metrics": {"estimated_distance": 8.0, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}]},
-      {"metadata": {"timestamp": 1700001001}, "global_context": {"scene_type": "construction_zone"}, "detections": [{"track_id": 100, "classification": {"class": "fence", "confidence": 0.90, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.5, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high"}}, {"track_id": 101, "classification": {"class": "cone", "confidence": 0.82, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.0, "azimuth_deg": -18}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}]},
-      {"metadata": {"timestamp": 1700001002}, "global_context": {"scene_type": "construction_zone"}, "detections": [{"track_id": 100, "classification": {"class": "fence", "confidence": 0.93, "category": "static"}, "spatial_metrics": {"estimated_distance": 3.2, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path"}}, {"track_id": 101, "classification": {"class": "cone", "confidence": 0.85, "category": "static"}, "spatial_metrics": {"estimated_distance": 2.8, "azimuth_deg": -15}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high"}}]}
+      {"metadata": {"timestamp": 1700001000}, "global_context": {"scene_type": "construction_zone"}, "detections": [{"track_id": 100, "classification": {"class": "fence", "confidence": 0.86, "category": "static"}, "spatial_metrics": {"estimated_distance": 8.0, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}, {"track_id": 101, "classification": {"class": "cone", "confidence": 0.80, "category": "static"}, "spatial_metrics": {"estimated_distance": 7.5, "azimuth_deg": -18}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}, {"track_id": 102, "classification": {"class": "box", "confidence": 0.84, "category": "static"}, "spatial_metrics": {"estimated_distance": 7.0, "azimuth_deg": 25}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}, {"track_id": 103, "classification": {"class": "person", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 12.0, "azimuth_deg": 35}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}, {"track_id": 104, "classification": {"class": "pole", "confidence": 0.84, "category": "static"}, "spatial_metrics": {"estimated_distance": 14.5, "azimuth_deg": 20}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700001001}, "global_context": {"scene_type": "construction_zone"}, "detections": [{"track_id": 100, "classification": {"class": "fence", "confidence": 0.90, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.5, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high"}}, {"track_id": 101, "classification": {"class": "cone", "confidence": 0.82, "category": "static"}, "spatial_metrics": {"estimated_distance": 5.0, "azimuth_deg": -18}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "medium"}}, {"track_id": 102, "classification": {"class": "box", "confidence": 0.85, "category": "static"}, "spatial_metrics": {"estimated_distance": 6.2, "azimuth_deg": 25}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}, {"track_id": 103, "classification": {"class": "person", "confidence": 0.83, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 11.0, "azimuth_deg": 35}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}, {"track_id": 104, "classification": {"class": "pole", "confidence": 0.84, "category": "static"}, "spatial_metrics": {"estimated_distance": 14.0, "azimuth_deg": 20}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700001002}, "global_context": {"scene_type": "construction_zone"}, "detections": [{"track_id": 100, "classification": {"class": "fence", "confidence": 0.93, "category": "static"}, "spatial_metrics": {"estimated_distance": 3.2, "azimuth_deg": 0}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high", "spatial_relation": "blocking_path"}}, {"track_id": 101, "classification": {"class": "cone", "confidence": 0.85, "category": "static"}, "spatial_metrics": {"estimated_distance": 2.8, "azimuth_deg": -15}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "high"}}, {"track_id": 104, "classification": {"class": "pole", "confidence": 0.83, "category": "static"}, "spatial_metrics": {"estimated_distance": 13.5, "azimuth_deg": 20}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}]}
     ]
   },
   {
@@ -219,8 +224,8 @@
     "ground_truth": {"ideal_warning_frame_3": "A person and a dog are to your right, but they are moving away.", "critical_objects": [], "expected_dominant_risk_frame_3": "low"},
     "frames": [
       {"metadata": {"timestamp": 1700001300}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 130, "classification": {"class": "dog", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 3.5, "azimuth_deg": 25}, "movement": {"approach_delta": -0.5}, "semantic_relations": {"risk_level": "low"}}, {"track_id": 131, "classification": {"class": "person", "confidence": 0.90, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 4.0, "azimuth_deg": 28}, "movement": {"approach_delta": -0.6}, "semantic_relations": {"risk_level": "low"}}]},
-      {"metadata": {"timestamp": 1700001301}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 130, "classification": {"class": "dog", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 4.5, "azimuth_deg": 30}, "movement": {"approach_delta": -0.7}, "semantic_relations": {"risk_level": "low"}}, {"track_id": 131, "classification": {"class": "person", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 5.2, "azimuth_deg": 32}, "movement": {"approach_delta": -0.8}, "semantic_relations": {"risk_level": "low"}}]},
-      {"metadata": {"timestamp": 1700001302}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 131, "classification": {"class": "person", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 6.5, "azimuth_deg": 35}, "movement": {"approach_delta": -1.0}, "semantic_relations": {"risk_level": "low"}}]}
+      {"metadata": {"timestamp": 1700001301}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 131, "classification": {"class": "person", "confidence": 0.88, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 5.2, "azimuth_deg": 32}, "movement": {"approach_delta": -0.8}, "semantic_relations": {"risk_level": "low"}}]},
+      {"metadata": {"timestamp": 1700001302}, "global_context": {"scene_type": "park_path"}, "detections": [{"track_id": 130, "classification": {"class": "dog", "confidence": 0.85, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 5.5, "azimuth_deg": 33}, "movement": {"approach_delta": -0.9}, "semantic_relations": {"risk_level": "low"}}, {"track_id": 131, "classification": {"class": "person", "confidence": 0.82, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 6.5, "azimuth_deg": 35}, "movement": {"approach_delta": -1.0}, "semantic_relations": {"risk_level": "low"}}]}
     ]
   },
   {
@@ -242,7 +247,7 @@
     "frames": [
       {"metadata": {"timestamp": 1700001500}, "global_context": {"scene_type": "sidewalk_near_road"}, "detections": [{"track_id": 150, "classification": {"class": "car", "confidence": 0.80, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 18.0, "azimuth_deg": -40}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}]},
       {"metadata": {"timestamp": 1700001501}, "global_context": {"scene_type": "sidewalk_near_road"}, "detections": [{"track_id": 150, "classification": {"class": "car", "confidence": 0.78, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 19.0, "azimuth_deg": -45}, "movement": {"approach_delta": 0.0}, "semantic_relations": {"risk_level": "low"}}]},
-      {"metadata": {"timestamp": 1700001502}, "global_context": {"scene_type": "sidewalk_near_road"}, "detections": [{"track_id": 150, "classification": {"class": "car", "confidence": 0.75, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 21.0, "azimuth_deg": -50}, "movement": {"approach_delta": -0.2}, "semantic_relations": {"risk_level": "low"}}]}
+      {"metadata": {"timestamp": 1700001502}, "global_context": {"scene_type": "sidewalk_near_road"}, "detections": [{"track_id": 150, "classification": {"class": "car", "confidence": 0.75, "category": "dynamic"}, "spatial_metrics": {"estimated_distance": 19.5, "azimuth_deg": -50}, "movement": {"approach_delta": -0.2}, "semantic_relations": {"risk_level": "low"}}]}
     ]
   },
   {
